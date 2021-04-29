@@ -1,17 +1,19 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
-description: this article explains something and gives a brief introduction.
+title:  "Bienvenido al Hacking"
+description: Aqui se expondran resumenes de Maquinas de Hack the Box y TryHackme
 tags: welcome introduction
 ---
+Empeceramos con las maquinas retiradas de Hack the Box empezando a aprender muchisimos conceptos nuevos y dejare enlaces a writeups en video para ir refenciando y apollando a compañeros del sector que se lo curran dia a dia para hacer llegar estos conocimientos de manera gratuita a la mayoria de la gente que quiera aprender sobre este mundillo. 
+
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
 To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
 
-> "This is a quote which should be followed"
-> Also I think this sentence is quite long.
-> more quote text to come
->   - Chris Wayne
+> "Ponte Mas Hack Que Nunca"
+> Vamos a darle leña al mono y a aprender disfrutando !
+> Empezaremos por Hack The Box  
+>   - K 0 H a c k -
 
 However, these are bulletpoints:
 
