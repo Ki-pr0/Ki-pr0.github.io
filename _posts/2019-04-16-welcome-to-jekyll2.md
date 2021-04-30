@@ -5,6 +5,7 @@ description: Aqui se expondran resumenes de Vulnerabilidades y mis writeups de M
 tags: welcome
 ---
 [!] Si estas empezando pasate por mi post de Vulnerabilidades Web para repasar los conceptos que necesites en cualquier momento.[!]
+
 Empeceramos con las maquinas retiradas de Hack the Box empezando a aprender muchisimos conceptos nuevos y dejare enlaces a writeups en video para ir refenciando y apollando a compañeros del sector que se lo curran dia a dia para hacer llegar estos conocimientos de manera gratuita a la mayoria de la gente que quiera aprender sobre este mundillo. 
 
 > "Ponte Mas Hack Que Nunca"
@@ -19,14 +20,10 @@ Empecemos por:
  * Scripts
 
  Ultimos Writeups:
-
- 1. Lame
- 2. Shocker
- 3. Bashed
-
-<video preload="auto" poster="https://pbs.twimg.com/tweet_video_thumb/D5aj3tfW0AIiSxo.jpg" src="https://video.twimg.com/tweet_video/D5aj3tfW0AIiSxo.mp4" type="video/mp4" autoplay controls></video>
-
-Code type:
+ 
+ + Vulnerabilidades Web Basicas +
+ 
+ Code type:
 
 ```bash
 echo -n "¿Estas bien Hack?" && read answer
@@ -34,3 +31,7 @@ echo "$answer Estamos Hack"
 echo  "Nmap t0 Hack"
 echo "Empecemos a divertirnos" 
 ```
+
+<video preload="auto" poster="https://pbs.twimg.com/tweet_video_thumb/D5aj3tfW0AIiSxo.jpg" src="https://video.twimg.com/tweet_video/D5aj3tfW0AIiSxo.mp4" type="video/mp4" autoplay controls></video>
+
+
