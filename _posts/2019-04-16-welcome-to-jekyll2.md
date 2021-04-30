@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Bienvenido a mi Blog de Hacking"
-description: Aqui se expondran resumenes de Vulnerabilidades y mis writeups de Maquinas de Hack the Box y TryHackme
+description: Aqui se expondran resumenes de Vulnerabilidades y mis Writeups de Maquinas de Hack the Box y TryHackme
 tags: welcome
 ---
 [!] Si estas empezando pasate por mi post de Vulnerabilidades Web para repasar los conceptos que necesites en cualquier momento [!]
