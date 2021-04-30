@@ -1,9 +1,10 @@
 ---
 layout: post
-title:  "Bienvenido al Hacking"
-description: Aqui se expondran resumenes de Maquinas de Hack the Box y TryHackme
+title:  "Bienvenido a mi Blog de Hacking"
+description: Aqui se expondran resumenes de Vulnerabilidades y mis writeups de Maquinas de Hack the Box y TryHackme
 tags: welcome
 ---
+[!] Si estas empezando pasate por mi post de Vulnerabilidades Web para repasar los conceptos que necesites en cualquier momento.[!]
 Empeceramos con las maquinas retiradas de Hack the Box empezando a aprender muchisimos conceptos nuevos y dejare enlaces a writeups en video para ir refenciando y apollando a compañeros del sector que se lo curran dia a dia para hacer llegar estos conocimientos de manera gratuita a la mayoria de la gente que quiera aprender sobre este mundillo. 
 
 > "Ponte Mas Hack Que Nunca"
@@ -12,7 +13,7 @@ Empeceramos con las maquinas retiradas de Hack the Box empezando a aprender much
 >   - K 0 H a c k -
 
 Empecemos por:
-
+ * Vulnerabilidades Web
  * Hack The Box
  * TryHackMe
  * Scripts
