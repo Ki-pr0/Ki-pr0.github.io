@@ -2,9 +2,9 @@ title: Blog de Hacking
 author: K0Hack
 email: 
 description: > # this means to ignore newlines until "show_exerpts:"
-  Blog Personal de K0Hack de:
+  Blog Personal de K0Hack sobre Conceptos
   Hacking Etico // HTB // TryHackMe // Resumenes de Hacking
-  Herramientas para distintas tareas.
+  // Herramientas para distintas tareas.
 show_excerpts: false # set to true to show excerpts on the homepage
 
 paginate: 1
