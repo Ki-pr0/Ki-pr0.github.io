@@ -38,3 +38,5 @@ Pudiendo contener el archivo shell.txt cualquier código, por ejemplo:
   system($cmd);
 ?>
 ---
+
+
