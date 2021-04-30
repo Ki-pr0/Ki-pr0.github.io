@@ -1,1 +1,26 @@
+---
+layout: post
+title:  "Aprendiendo a identificar los diferentes ataques basicos a nivel Web"
+tags: Web Attacks
+---
+Empezaremos por aprender las principales Vulnerabilidades a nivel Web
+  
+1 ~ LFI ~   Local File Inclusion
+2 ~ RFI ~   Remote File Inclusion
+3 ~ RCE ~   Remote Code Execution
+
+1.- El Local File Inclusion se produce como consecuencia de un fallo en la programación de la página, filtrando inadecuadamente lo que se incluye al usar funciones en PHP para incluir archivos.
+Para poder corroborar si un sitio es vulnerable, se puede colocar un valor ilógico a la variable. 
+En nuestro ejemplo tenemos: "http://localhost/index.php?page=" donde se coloca un valor, en este caso http://localhost/index.php?page=78se3, algo aleatorio que no se encuentre registrado.
+Si arroja un error como Warning: main()… o Warning: include()… o similar entonces es probable que sea vulnerable a RFI o LFI
+
+{% PHP - LFI Codigo Vulnerable por Detras %}
+<?php
+include $_GET[‘pagina’];
+?>
+{% endhighlight %}
+
+
+El Remote File Inclusion
+
 
