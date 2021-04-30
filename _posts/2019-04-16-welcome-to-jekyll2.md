@@ -2,7 +2,7 @@
 layout: post
 title:  "Bienvenido al Hacking"
 description: Aqui se expondran resumenes de Maquinas de Hack the Box y TryHackme
-tags: welcome introduction
+tags: welcome
 ---
 Empeceramos con las maquinas retiradas de Hack the Box empezando a aprender muchisimos conceptos nuevos y dejare enlaces a writeups en video para ir refenciando y apollando a compañeros del sector que se lo curran dia a dia para hacer llegar estos conocimientos de manera gratuita a la mayoria de la gente que quiera aprender sobre este mundillo. 
 
@@ -31,5 +31,5 @@ Code type:
 echo -n "¿Estas bien Hack?" && read answer
 echo "$answer Estamos Hack"
 echo  "Nmap t0 Hack"
-echo "Empecemos" 
+echo "Empecemos a divertirnos" 
 ```
