@@ -39,8 +39,8 @@ Algunas formas comunes de pasar de un LFI a RCE:
 Ahora, por lo general, cuando encuentro una inclusión de archivo local o LFI, primero trato de convertirlo en una ejecución remota de código.
 
 > Trucos para convertir su LFI en RCE, como:
-
-> -Uso de formularios / funciones de carga de archivos:
+-Uso de formularios / funciones de carga de archivos:
+---
 Usando el contenedor de PHP  wait: // comando
 Usando el archivo PHP wrapper  php: //
 Usando el contenedor PHP  php: // filter
@@ -48,12 +48,12 @@ Usando PHP      input: // stream
 Usando datos: // texto / plano; base64, comando
 Usando / proc / self / environment
 Usando / proc / self / fd
-
->Usando archivos de registro con entrada controlable como:
-
+---
+>Las siguientes Rutas importantes:
+---
 /var/log/apache/access.log
 /var/log/apache/error.log
 /var/log/vsftpd.log
 /var/log/sshd.log
-/ var / log / mail
-
+/var/log/mail
+---
