@@ -8,8 +8,9 @@ Empezaremos por aprender las principales Vulnerabilidades a nivel Web
   
 # ~ LFI ~   Local File Inclusion
 
+1.- La vulnerabilidad de Local File Inclusion se produce como consecuencia de un fallo en la programación de la página, filtrando inadecuadamente lo que se incluye al usar funciones en PHP para incluir archivos desde una variable.
 
-1.- La vulnerabilidad de Local File Inclusion se produce como consecuencia de un fallo en la programación de la página, filtrando inadecuadamente lo que se incluye al usar funciones en PHP para incluir archivos.
+-Ejemplo 1
 Para poder corroborar si un sitio es vulnerable, se puede colocar un valor ilógico a la variable. 
 En nuestro ejemplo tenemos: "http://localhost/index.php?page=" donde se coloca un valor, en este caso http://localhost/index.php?page=78se3, algo aleatorio que no se encuentre registrado.
 Si arroja un error como Warning: main()… o Warning: include()… o similar entonces es probable que sea vulnerable a RFI o LFI
@@ -19,6 +20,29 @@ Si arroja un error como Warning: main()… o Warning: include()… o similar ent
 <?php
 include $_GET[‘pagina’];
 ?>
+{% endhighlight %}
+
+-Ejemplo 2
+Nos montamos un servidor apache ($service apache2 start) que almacene dos archivos:
+```
+* example.php
+* file.txt
+```
+Donde example.php seria:
+{% highlight php %}
+<?php
+    $file = $_GET['filename'];
+    include($file);
+?>
+{% endhighlight %}
+Y file.txt:
+``` 
+Por Aqui Puede Haber Un LFI
+```
+Nosotros apuntando a nuestro servidor podrimos ya listar archivos Locales del servidor, atraves de la variable "filename"
+{% highlight %}
+http://localhost/example.php?filename=file.txt
+http://localhost/example.php?filename=/etc/passwd
 {% endhighlight %}
 
 # ~ RFI ~   Remote File Inclusion
