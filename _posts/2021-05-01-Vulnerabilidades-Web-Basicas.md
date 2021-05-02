@@ -40,11 +40,32 @@ Y file.txt:
 ``` 
 Por Aqui Puede Haber Un LFI
 ```
-Nosotros apuntando a nuestro servidor podrimos ya listar archivos Locales del servidor, atraves de la variable "filename"
+Nosotros apuntando a nuestro servidor podriamos ya listar archivos Locales del servidor, atraves de la variable "filename"
+
 ```bash
 http://localhost/example.php?filename=file.txt
+Por Aqui Puede Haber Un LFI
 http://localhost/example.php?filename=/etc/passwd
+listariamos el archivo /etc/passwd
+Esto es un LFI
 ```
+
+<a href="https://ibb.co/gjNZPZr"><img src="https://i.ibb.co/xCWqfq2/url-LFI.png" alt="url-LFI.png" border="0" /></a>
+
+Supongamos que el desarrollador nos indica en donde debe encontrarse el archivo a buscar a traves de una ruta:
+
+{% highlight php %}
+<?php
+    $file = $_GET['filename'];
+    include("/var/www/html/" . $file);
+?>
+{% endhighlight %}
+
+```bash
+http://localhost/example.php?filename=../../../../../etc/passwd
+Y volveriamos a listar el archivo /etc/passwd
+```
+
 
 # ~ RFI ~   Remote File Inclusion
 La vulnerabilidad de Remote File Inclusion se produce cuando:
