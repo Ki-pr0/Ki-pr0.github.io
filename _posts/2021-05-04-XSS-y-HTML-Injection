@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Aprendiendo a identificar los diferentes ataques basicos a nivel Web 2"
+title:  "Aprendiendo sobre ataques XSS y HTML Injection"
 description: Aprendiendo sobre las Vulnerabilidades " XSS// HTML INJECCTION "
 tags: Web Attacks xss html injecction
 ---
