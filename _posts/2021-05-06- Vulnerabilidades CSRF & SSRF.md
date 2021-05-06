@@ -1,4 +1,9 @@
-
+---
+layout: post
+title:  "Bienvenido a mi Blog de Hacking"
+description: Aqui se expondran resumenes de Vulnerabilidades y mis Writeups de Maquinas de Hack the Box y TryHackme
+tags: CSRF & SSRF Attacks
+---
 
 
 # Explicación del Ataque Cross Site Request Forgery ~ (CSRF) ~ Maquina HTB SecNotes
