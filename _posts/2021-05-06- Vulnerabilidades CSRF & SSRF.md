@@ -5,7 +5,7 @@ description: Explicacion de los Ataques Cross Site Requests Forgery y Server Sid
 tags: CSRF & SSRF Attacks
 ---
 
-# Explicación del Ataque Cross Site Request Forgery ~ (CSRF) ~ Maquina HTB SecNotes
+# Ataque Cross Site Request Forgery ~ (CSRF) ~ Maquina HTB SecNotes
 
 CSRF: el Cross Site Request Forgery (CSRF o XSRF) es un tipo de ataque que se suele usar para estafas por Internet.
 Los delincuentes se apoderan de una sesión autorizada por el usuario (session riding) para realizar actos dañinos.
