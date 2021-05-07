@@ -38,8 +38,9 @@ Agradecemos toda la info a Chema Alonso "https://www.elladodelmal.com/2015/04/ss
 
 Estos fallos son muy típicos, y ya los hemos visto en un buen número de sitios. En el artículo de Buscadores como arma de destrucción masiva se hablaba de posibles ataques de SSRF utilizando la indexación maliciosa o los agregadores de noticias, que permitían por ejemplo que un servidor lanzara un ataque de SQL Injection sin interacción alguna del atacante
 
-Buscadores como arma de destruccion massiva:
-https://www.elladodelmal.com/2010/05/buscadores-como-arma-de-destruccion.html
-
+--- Buscadores como arma de destruccion massiva:
+ ```bash
+"https://www.elladodelmal.com/2010/05/buscadores-como-arma-de-destruccion.html"
+``` 
 Un caso curioso de SSRF son los paneles de administración expuestos en Internet, como sitios de configuración de impresoras HP que permiten escanear la DMZ completa, o los casos de bugs de Connection String Parameter Polution, tanto de bases de datos MySQL como de tecnologías .NET. Con ellos hemos visto lo fácil que es realizar ataques de XSPA (Cross Site Port Attacks) aprovechando estas vulnerabilidades de SSRF
 
