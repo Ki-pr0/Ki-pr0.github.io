@@ -116,7 +116,7 @@ Host script results:
 Encontramos iformacion util para proseguir con las siguiente herramienta
 
 Utilizamos la siguiente herramienta para ver si tenemos acceso al servicio samba sin proporcionar contraseña (-N) y ver si hay algun recurso disponible, descargarlo, subir algun archivo etc.
-smbclient
+ [ smbclient ]
 ```bash
 "smbclient -N -L //10.10.10.27/    "
    
@@ -167,7 +167,7 @@ Leemos el archivo encontrado
 
 # Explotacion del fichero XP_CMDSHELL dentro de Mysql configurandolo para conseguir un RCE (Remote Code Execution)
 
-Usando la herramienta de IMPACKET: mssqlclient.py 
+Usando la herramienta de IMPACKET: [ mssqlclient.py ] 
 ```bash
 "─$ /usr/bin/python3 /opt/impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"                                                          2 ⨯
 Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
