@@ -5,9 +5,22 @@ description: En esta ocasion empezaremos con los Writeups de las maquina de Star
 tags: HTB, Empezando, Hacking, Starting
 ---
 
-# Archetype
+# Archetype ~ Hack The Box
 
->> Enumeracion con Nmap 
+Comprobamos que la maquina este activa con una traza ICMP, usamos la herramienta PING.
+```bash
+ "# ping -c 10 10.10.10.27"                                       
+PING 10.10.10.27 (10.10.10.27) 56(84) bytes of data.
+64 bytes from 10.10.10.27: icmp_seq=1 ttl=127 time=39.4 ms
+64 bytes from 10.10.10.27: icmp_seq=2 ttl=127 time=39.5 ms
+^C
+--- 10.10.10.27 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1001ms
+rtt min/avg/max/mdev = 39.430/39.449/39.469/0.019 ms
+```
+La maquina esta activa y por el ttl identificamos que puede es WINDOWS
+
+# Enumeracion con Nmap 
 
 Procedemos a enumerar todos los puertos abiertos en un escaneo usando los siguiente parametros:
 
@@ -101,6 +114,12 @@ Host script results:
 |_  start_date: N/A
 ```
 Encontramos iformacion util para proseguir con las siguiente herramienta
+
+Utilizamos la siguiente herramienta para ver si tenemos acceso al servicio samba sin proporcionar contraseña (-N) y ver si hay algun recurso disponible, descargarlo, subir algun archivo etc.
+smbclient
+```bash
+smbclient -N -L //10.10.10.27/
+```
 
 mssqlclient.py
 
