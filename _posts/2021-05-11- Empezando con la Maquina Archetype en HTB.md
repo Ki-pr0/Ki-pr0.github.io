@@ -103,3 +103,7 @@ Host script results:
 Encontramos iformacion util para proseguir con las siguiente herramienta
 
 mssqlclient.py
+
+```bash
+mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows -auth
+```
