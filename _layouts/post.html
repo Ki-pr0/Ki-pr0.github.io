@@ -65,3 +65,19 @@ layout: default
   document.getElementById('animated-post-description').style.display = 'initial';
   typeWriter();
 </script>
+
+<!-- Recent and Popular Posts -->
+<div class="row">
+    <div class="large-6 small-12 columns">
+        <h2>Popular Posts</h2>
+       
+    </div>
+    <div class="large-6 small-12 columns">
+        <h2>Recent Posts</h2>
+        <ul class="posts">  
+            {% for post in site.posts limit:5 %}  
+               <li><a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></li>  
+            {% endfor %}  
+        </ul>
+    </div>
+</div>
