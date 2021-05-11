@@ -31,7 +31,7 @@ Con la funcion de extractPorts: filtramos por los puertos abiertos pasandole el 
         [*]OPEN PORTS: 135,139,445,1433,5985,47001,49664,49665,49666,49667,49668,49669
 
 ```
- 2.- Segundo Escaneo con Nmap
+ 2.- Siguiente Escaneo con Nmap
  
 Procedemos a escanear la version y servicios de los puerto encontrados como abiertos:
 
