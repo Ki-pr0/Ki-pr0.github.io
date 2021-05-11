@@ -7,7 +7,7 @@ tags: HTB, Empezando, Hacking, Starting
 
 # Archetype
 
->> Enumeracion | Escaneos con Nmap |
+>> Enumeracion con Nmap >>
 
 Procedemos a enumerar todos los puertos abiertos en un escaneo usando los siguiente parametros:
 
