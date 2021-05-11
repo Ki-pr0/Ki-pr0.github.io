@@ -24,16 +24,10 @@ dash:
 
   # generate social links in footer
   # supported colors: green, red, orange, blue, cyan, pink, teal, yellow, indigo, purple
-  social_links:
-    - url:  
-      icon: twitter-square
-      color: cyan
-    - url: https://Ki-pro.github.io
-      icon: itch-io
-      color: red
+  social_links
     - url: https://Ki-pro.github.io
       icon: github-square
-      color: purple
+      color: red
 
   show_author: true
 
