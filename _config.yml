@@ -7,7 +7,7 @@ description: > # this means to ignore newlines until "show_exerpts:"
   // Herramientas para distintas tareas.
 show_excerpts: false # set to true to show excerpts on the homepage
 
-paginate: 1
+paginate: 4
 paginate_path: "/blog/page:num"
 
 tag_permalink_style: pretty
@@ -24,8 +24,8 @@ dash:
 
   # generate social links in footer
   # supported colors: green, red, orange, blue, cyan, pink, teal, yellow, indigo, purple
-  social_links
-    - url: https://Ki-pro.github.io
+  social_links:
+      url: https://Ki-pro.github.io
       icon: github-square
       color: red
 
