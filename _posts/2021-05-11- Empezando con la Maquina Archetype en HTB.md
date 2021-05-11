@@ -164,8 +164,11 @@ Leemos el archivo encontrado
     </Configuration>
 </DTSConfiguration>   
 ```
-mssqlclient.py
 
+# Explotacion del fichero XP_CMDSHELL dentro de Mysql configurandolo para conseguir un RCE (Remote Code Execution)
+
+Usando la herramienta de IMPACKET:
+>> mssqlclient.py 
 ```bash
 "─$ /usr/bin/python3 /opt/impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"                                                          2 ⨯
 Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
