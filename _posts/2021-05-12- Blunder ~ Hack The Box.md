@@ -165,7 +165,7 @@ Buscamos google por BLUDIT CMS y vemos un repositorio de github con mas rutas in
 | notes | "" |
 ``` 
 Ya tenemos la version del Bludit CMS, y tras una segunda busqueda encontramos este exploit en python3
-```python3
+```python
 # Title: Bludit 3.9.2 - Directory Traversal
 # Author: James Green
 # Date: 2020-07-20
