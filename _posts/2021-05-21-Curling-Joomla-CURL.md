@@ -80,7 +80,7 @@ Pass: Curling2018!
 ```
 Nos conseguimos loguear correctamente como el user Floris
 Una vez dentro nos dirigimos a `TEMPLATES`, elegimos el tema `Beez3` y procedemos a crear un nuevo archivo.
-_foto_
+<a href="https://ibb.co/9cqRCyv"><img src="https://i.ibb.co/wBKDxpL/curling-joomla-template-malicius.png" alt="curling-joomla-template-malicius.png" border="0" /></a>
 
 El archivo que vamos a crear va a ser una archivo malicioso `.php`tal que podamos ejecutar comandos a a nivel web para posteriormente lanzarnos una shell
 Archivito del Joomla: Nombre: `pros.php`
