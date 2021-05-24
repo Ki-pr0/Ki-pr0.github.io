@@ -241,7 +241,7 @@ Press 'q' or Ctrl-C to abort, almost any other key for status
 Use the "--show" option to display all of the cracked passwords reliably
 Session completed
 ```
-Y ya tendriamos la contraseña de `root`
+Y ya tendriamos la contraseña de `root`.
 Podriamos hacer un `su root` pegar la contraseña y posteriormente coseguir la flag de `root.txt`
 
 Maquina Rooteada =)
