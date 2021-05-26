@@ -38,8 +38,8 @@ Probamos con Injecciones sql Basicas
 # admin' or 1=1-- -
 # admin' or 1=1;-- -  	>>> Nos devuelve un user
 
-			"									name: admin             "
-			" 								name: thrasivoulos        "
+			"	name: admin             "
+			" 	name: thrasivoulos        "
 ```
 Y una `Clave Id_rsa` (clave privada)
 
