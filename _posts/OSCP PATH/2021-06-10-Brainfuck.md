@@ -5,7 +5,7 @@ description: Writeup de la maquina de HackTheBox llamada BRAINFUCK siguiendo el 
 tags: HTB, OSCP Path, Cifrado Decimal, Cifrado Hex, Dovecot, Maquinas Retiradas, Writeup, Hacking
 ---
 
-# Lame ~ Hack The Box to OSCP
+# Brainfuck ~ Hack The Box to OSCP
 
 Realizamos el Primer escaneo con Nmap
 ```bash
