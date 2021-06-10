@@ -42,10 +42,10 @@ Service Info: Host:  brainfuck; OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Vemos qe se aplica el concepto de `<Virtual hosting >` `brainfuck.htb`, `sup3rs3cr3t.brainfuck.htb`
 
-``bash
+```bash
 # whatweb https://brainfuck.htb                                                         
 https://brainfuck.htb [200 OK] Bootstrap[4.7.3], Country[RESERVED][ZZ], Email[ajax-loader@2x.gif,orestis@brainfuck.htb], HTML5, HTTPServer[Ubuntu Linux][nginx/1.10.0 (Ubuntu)], IP[10.10.10.17], JQuery[1.12.4], MetaGenerator[WordPress 4.7.3], Modernizr, PoweredBy[WordPress,], Script[text/javascript], Title[Brainfuck Ltd. &#8211; Just another WordPress site], UncommonHeaders[link], WordPress[4.7.3], nginx[1.10.0]  
-``
+```
 Lanzamos un `whatweb` y estamos anter un `"Wordpress 4.7.3"`
 
 Procedemos a lanzar un escaneo con la herramienta `wpscan`:
