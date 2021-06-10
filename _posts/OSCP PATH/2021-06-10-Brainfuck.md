@@ -40,7 +40,7 @@ PORT    STATE SERVICE  VERSION
 Service Info: Host:  brainfuck; OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ```
 
-Vemos qe se aplica el concepto de `<Virtual hosting >` `brainfuck.htb`, `sup3rs3cr3t.brainfuck.htb`
+Vemos que se aplica el concepto de `<Virtual hosting >` `brainfuck.htb`, `sup3rs3cr3t.brainfuck.htb`
 
 ```bash
 # whatweb https://brainfuck.htb                                                         
@@ -255,7 +255,7 @@ pipe/                                              17-Apr-2017 17:51            
 readme.txt                                         17-Apr-2017 17:51               19938
 wp-support-plus.php 
 ```
-Atraves del archivo readme.txt vemos la version de plugin V 7.1.3
+Atraves del archivo `readme.txt` vemos la version de plugin `V 7.1.3`
 ```bash
 # searchsploit wp support
 ---------------------------------------------------------------------------------------------------------------------------------------------- ---------------------------------
