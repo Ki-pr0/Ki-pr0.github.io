@@ -405,7 +405,7 @@ Warning: Only 5 candidates left, minimum 8 needed for performance.
 1g 0:00:00:02 DONE (2021-06-09 18:18) 0.4201g/s 6025Kp/s 6025Kc/s 6025KC/s *7¡Vamos!..rootpassword!
 Session completed
 ```
-# CONSIGUIENDO ACCESO INICIAL POR SSH 
+# Consiguiendo Acceso Inicial por SSH 
 ```BASH
 # ssh -i id_rsa orestis@brainfuck.htb                                                                                                                                   255 ⨯
 The authenticity of host 'brainfuck.htb (10.10.10.17)' can't be established.
@@ -427,3 +427,119 @@ Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-75-generic x86_64)
 You have mail.
 Last login: Wed May  3 19:46:00 2017 from 10.10.11.4
 orestis@brainfuck:~$  
+```
+
+# Privesc / Enumeracion del Sistema
+
+Enumeramos :
+```bash
+orestis@brainfuck:~$ ls
+debug.txt  encrypt.sage  mail  output.txt  "user.txt"
+```
+Sacamos la Flag de `user.txt` y seguimos enumerando los diferentes recursos
+```bash
+orestis@brainfuck:~$ cat debug.txt 
+7493025776465062819629921475535241674460826792785520881387158343265274170009282504884941039852933109163193651830303308312565580445669284847225535166520307
+7020854527787566735458858381555452648322845008266612906844847937070333480373963284146649074252278753696897245898433245929775591091774274652021374143174079
+30802007917952508422792869021689193927485016332713622527025219105154254472344627284947779726280995431947454292782426313255523137610532323813714483639434257536830062768286377920010841850346837238015571464755074669373110411870331706974573498912126641409821855678581804467608824177508976254759319210955977053997
+
+orestis@brainfuck:~$ cat output.txt 
+Encrypted Password: 44641914821074071930297814589851746700593470770417111804648920018396305246956127337150936081144106405284134845851392541080862652386840869768622438038690803472550278042463029816028777378141217023336710545449512973950591755053735796799773369044083673911035030605581144977552865771395578778515514288930832915182
+```
+Vamos a ver que es lo que hace este script que nos deja estos archivos con caracteres Decimales
+```bash
+orestis@brainfuck:~$ cat encrypt.sage 
+nbits = 1024
+
+password = open("/root/root.txt").read().strip()
+enc_pass = open("output.txt","w")
+debug = open("debug.txt","w")
+m = Integer(int(password.encode('hex'),16))
+
+p = random_prime(2^floor(nbits/2)-1, lbound=2^floor(nbits/2-1), proof=False)
+q = random_prime(2^floor(nbits/2)-1, lbound=2^floor(nbits/2-1), proof=False)
+n = p*q
+phi = (p-1)*(q-1)
+e = ZZ.random_element(phi)
+while gcd(e, phi) != 1:
+    e = ZZ.random_element(phi)
+
+c = pow(m, e, n)
+enc_pass.write('Encrypted Password: '+str(c)+'\n')
+debug.write(str(p)+'\n')
+debug.write(str(q)+'\n')
+debug.write(str(e)+'\n')
+```
+Como no sabemos que es lo que esta haciendo vamos a copiar una parte del codigo para ver si encontramos el tipo de Cifrado que se esta empleando
+```bash
+p = random_prime(2^floor(nbits/2)-1, lbound=2^floor(nbits/2-1), proof=False)  "[BUSQUEDA EN GOOGLE]"
+```
+Parece que : `It is a standard RSA with e=5 an` encontrado en https://ctftime.org/writeup/6434
+
+Y encontramos un script para calcular las variables de la encriptacion RSA: ` P ` `  Q  ` ` E `
+`https://crypto.stackexchange.com/questions/19444/rsa-given-q-p-and-e`
+
+Vamos a Setear el script con nuestras variables del archivo `debug.txt` y `output.txt`
+```bash
+# cat decrypt.py                                                                                                                                                          1 ⨯
+#!/usr/bin/python
+
+# Funcion Principal de variables
+
+def egcd(a, b):
+    x,y, u,v = 0,1, 1,0
+    while a != 0:
+        q, r = b//a, b%a
+        m, n = x-u*q, y-v*q
+        b,a, x,y, u,v = a,r, u,v, m,n
+        gcd = b
+    return gcd, x, y
+
+# Funcion Principal 1, seteamos las variables con las que teniamos en el archivo debug.txt
+def main():
+
+    p = 7493025776465062819629921475535241674460826792785520881387158343265274170009282504884941039852933109163193651830303308312565580445669284847225535166520307
+    q = 7020854527787566735458858381555452648322845008266612906844847937070333480373963284146649074252278753696897245898433245929775591091774274652021374143174079
+    e = 30802007917952508422792869021689193927485016332713622527025219105154254472344627284947779726280995431947454292782426313255523137610532323813714483639434257536830062768286377920010841850346837238015571464755074669373110411870331706974573498912126641409821855678581804467608824177508976254759319210955977053997
+    ct = 299604539773691895576847697095098784338054746292313044353582078965
+
+    # compute n
+    n = p * q
+
+    # Compute phi(n)
+    phi = (p - 1) * (q - 1)
+
+    # Compute modular inverse of e
+    gcd, a, b = egcd(e, phi)
+    d = a
+
+    print( "n:  " + str(d) );
+
+    # Decrypt ciphertext
+    pt = pow(ct, d, n)
+    print( "pt: " + str(pt) )
+
+if __name__ == "__main__":
+    main()
+```
+Una vez seteado todo lanzamos el script para ver si calculamos el valor correspondiente.
+Seteamos las variables y ejecutamos
+```bash    
+# python decrypt.py                                                                                                                                                       1 ⚙
+n:  8730619434505424202695243393110875299824837916005183495711605871599704226978295096241357277709197601637267370957300267235576794588910779384003565449171336685547398771618018696647404657266705536859125227436228202269747809884438885837599321762997276849457397006548009824608365446626232570922018165610149151977
+# Este es el Valor que queremos, PT, que se encuentra en valor DECIMAL, 
+pt: 24604052029401386049980296953784287079059245867880966944246662849341507003750
+```
+Ahora tenemos que pasar este codigo en DECIMAL A HEXADECIMAL y luego a Texto plano a normal
+Para ello vamos usar esta pagina web:
+https://www.rapidtables.com/convert/number/decimal-to-hex.html
+Ahora pasamo de `Decimal to HEX` 
+`Output: 3665666331613564626238393034373531636536353636613330356262386566`
+ 
+Ahora de `HEX to TEXT`
+`Output: 6efc1a5dbb8904751ce6566a305bbxxxx`
+ 
+Maquina `BRAINFUCK` rooteada =D !! Seguimos Full Hacks !!
+ Que parece ser la flag de `root.txt`
+ 
+ 
