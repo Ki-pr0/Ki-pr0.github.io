@@ -2,7 +2,7 @@
 layout: post
 title:  "Maquina Retirada Mango de Hack The Box (Necesario VIP)"
 description: En esta ocasion empezaremos con el Writeup de la maquina de HackTheBox llamada MANGO
-tags: HTB, Bypass, NoSQLI, Mongo-db, Web Hacking, Maquinas Retiradas, Writeup
+tags: HTB, Bypass, NoSQLI, Mongo-db, JJS, Web Hacking, Maquinas Retiradas, Writeup
 ---
 
 # Mango ~ Hack The Box
