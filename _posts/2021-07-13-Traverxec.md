@@ -2,7 +2,7 @@
 layout: post
 title:  "Maquina Traverxec de HackTheBox (Si necesario VIP)"
 description: En esta ocasion empezaremos con el Writeup de la maquina de HacktTheBox llamada TRAVERXEC
-tags: HackTheBox, Nostromo RCE, Burpsuite, Cracking Id-Rsa, SSH, Web Hacking, Writeup, 
+tags: HackTheBox, Nostromo RCE, Burpsuite, Cracking Id-Rsa, SSH, Journalctl, Web Hacking, Writeup, 
 ---
 
 # Traverexec ~ TryHackMe
