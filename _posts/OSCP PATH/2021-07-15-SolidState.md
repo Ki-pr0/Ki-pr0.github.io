@@ -9,6 +9,10 @@ tags: HTB, OSCP Path, Mail, smtpd, PopD, Remote Admin, Maquinas Retiradas, Write
 
 Realizamos el Primer escaneo con Nmap
 ```bash
+$" nmap -p- --open -sS --min-rate 4000 -vvv -n -Pn -oG allports 10.10.10.51      "
+``` 
+Procedemos con el siguiente escaneo de Nmap
+```bash
 PORT     STATE SERVICE     VERSION
 22/tcp   open  ssh         OpenSSH 7.4p1 Debian 10+deb9u1 (protocol 2.0)
 | ssh-hostkey: 
