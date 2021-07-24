@@ -69,7 +69,7 @@ PORT    STATE SERVICE
 |       http://cvedetails.com/cve/2014-0160/
 |_      http://www.openssl.org/news/secadv_20140407.txt 
 ```
-# Definicion de Heartbleet
+# Definicion de Heartbleed
 Heartbleed (español:  hemorragia de corazón) es un agujero de seguridad de software en la  biblioteca de código abierto OpenSSL,
 solo vulnerable en su versión  1.0.1f, que permite a un atacante leer la memoria de un servidor o un  cliente, permitiéndole por ejemplo,
 conseguir las claves privadas SSL de  un servidor.
@@ -79,7 +79,7 @@ Podriamos a ver conseguido ver que es vulnerable lanzando el siguiente comando t
 nmap --script “vuln and safe” 10.10.10.79 -oN ScanManchine
 ```
 
-# Explotando Heartbleet
+# Explotando Heartbleed
 Exploit funcional de Heartbleet
 https://raw.githubusercontent.com/sensepost/heartbleed-poc/master/heartbleed-poc.py
 Lo descargamos y Lo usamos de la siguiente forma:
