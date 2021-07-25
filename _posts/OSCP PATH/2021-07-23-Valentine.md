@@ -179,7 +179,7 @@ Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -               
 tcp        0      0 127.0.0.1:631           0.0.0.0:*               LISTEN      -               
-tcp        0    488 10.10.10.79:22          10.10.16.132:49820      ESTABLISHED -               
+tcp        0    488 10.10.10.79:22          10.10.14.12:49820      ESTABLISHED -               
 tcp6       0      0 :::80                   :::*                    LISTEN      -               
 tcp6       0      0 :::22                   :::*                    LISTEN      -               
 tcp6       0      0 ::1:631                 :::*                    LISTEN      -               
