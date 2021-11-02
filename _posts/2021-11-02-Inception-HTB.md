@@ -186,3 +186,6 @@ Nos autenticamos al webdav por http y procedemos a apuntar al script webshell.ph
 http://10.10.10.67/webdav_test_inception/webshell.php?cmd=whoami
 www-data
 ```
+
+Procedemos a intentar ganar acceso a la maquina desde nuestra webshell, pero vemos que por IPTABLES estan todas las conexiones interceptadas para que no se pueda.
+Asique hacemos uso del concepto Over-HTTP-TTY de s4vitar para jugar con mkfifo
