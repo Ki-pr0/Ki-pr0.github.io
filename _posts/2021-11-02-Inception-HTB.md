@@ -189,3 +189,10 @@ www-data
 
 Procedemos a intentar ganar acceso a la maquina desde nuestra webshell, pero vemos que por IPTABLES estan todas las conexiones interceptadas para que no se pueda.
 Asique hacemos uso del concepto Over-HTTP-TTY de s4vitar para jugar con mkfifo
+```bash
+https://github.com/s4vitar/ttyoverhttp
+```
+Nos descargamos el repositorio y realizamos una modificacion fijandonos en que tenemos una Cookie de Seesion
+```bash
+Aasdadaduthorization: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5daAuthorization: Basic d2ViZGF2X3Rlc3RlcjpiYWJ5Z3VybDY5
+```
