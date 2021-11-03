@@ -488,3 +488,26 @@ Warning: Permanently added '192.168.0.1' (ECDSA) to the list of known hosts.
 root@192.168.0.1's password:
 ```
 Vemos que demomento aun nos pide contraseña para entrar, en el momento que se aplique nuestro comando, conseguiremos entrar sin proporcionar contraseña.
+```bash
+cobb@Inception:~$ ssh root@192.168.0.1
+Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.4.0-101-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+0 packages can be updated.
+0 updates are security updates.
+
+
+Last login: Thu Nov 30 20:04:21 2017
+root@Inception:~# 
+```
+
+Procedemos a sacar la flag `root.txt`
+```bash
+root@Inception:~# cat root.txt 
+8d1e2e91de427a6fc1a9dc30xxxxxxxxx
+```
+
+Maquina Inception `Rooteada` - KOH
