@@ -101,4 +101,20 @@ Usando / proc / self / fd
 /var/log/vsftpd.log
 /var/log/sshd.log
 /var/log/mail
-``` 
+```
+
+Let's start testing for reading local files related to the operating system. The following are some Linux system files that have sensitive information.
+
+```bash
+/etc/issue
+/etc/passwd
+/etc/shadow
+/etc/group
+/etc/hosts
+/etc/motd
+/etc/mysql/my.cnf
+/proc/[0-9]*/fd/[0-9]*   (first number is the PID, second is the filedescriptor)
+/proc/self/environ
+/proc/version
+/proc/cmdline
+```
