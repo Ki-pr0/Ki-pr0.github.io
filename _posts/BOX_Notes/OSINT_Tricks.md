@@ -14,7 +14,8 @@ link Busca enlaces externos a páginas.
 inurl Busca una URL que coincida con una de las palabras clave.
 	inurl: "palabra clave"
 before/after Se utiliza para buscar dentro de un rango de fechas determinado.
-	(before:2000-01-01 after:2001-01-01)```
+	(before:2000-01-01 after:2001-01-01)
+```
 
 # OSINT y la cadena de bloques
 
