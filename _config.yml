@@ -34,7 +34,7 @@ dash:
   animation_speed: 50
 
 # Build settings
-theme: jekyll-dash
+theme: jekyll-theme-midnight
 
 plugins:
  - jekyll-feed
