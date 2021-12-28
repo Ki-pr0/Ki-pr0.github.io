@@ -2,7 +2,7 @@
 layout: post
 title:  "Maquina  Retirada Blunder de Hack The Box (Necesario VIP)"
 description: En esta ocasion empezaremos con el Writeup de la maquina de HackTheBox llamada BLUNDER
-tags: HTB, Bypass, BruteForce, Web Hacking, Maquinas Retiradas, Writeup
+tags: HTB, Bypass, Python3, BruteForce, Web Hacking, Sudo 1.8, Maquinas Retiradas, Writeup
 ---
 
 # Blunder ~ Hack The Box
