@@ -1,4 +1,4 @@
-![logo](hacker.png)
+![logo](h.png)
 --
 
 [![design](descarga.gif)](https://ki-pr0.github.io/)
