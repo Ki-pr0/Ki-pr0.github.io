@@ -1,9 +1,7 @@
 ![logo](hacker.png)
 --
 
-
-
-[![design](theme.gif)](http://bitbrain.github.io)
+[![design](descarga.gif)](https://ki-pr0.github.io/)
 
 ## Readme
 
