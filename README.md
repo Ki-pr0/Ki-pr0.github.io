@@ -1,11 +1,11 @@
-![logo](h.png)
+![logo](maxresdefault.png)
 --
 
 [![design](descarga.gif)](https://ki-pr0.github.io/)
 
 ## Readme
 
-Multiples Posts for the Writeups of the las Boxes on HTB, THM, Offensive Sec
+Multiples Posts for the Writeups of last Boxes on HTB, TryHackMe, Offensive Sec
 This page is under Development
 
 ## Development
