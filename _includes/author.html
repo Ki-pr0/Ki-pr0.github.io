@@ -5,7 +5,6 @@
         {% endcapture %}
     {% elsif site.plugins contains "liquid-md5" %}
         {% capture avatar_image %}
-            https://gravatar.com/avatar/{{ site.email | downcase | md5 }}?s=256
         {% endcapture %}
     {% endif %}
     {% if avatar_image %}
