@@ -1,4 +1,4 @@
-![logo](logo.png)
+![logo](hacker.png)
 --
 
 A dark and light theme for Jekyll, inspired by Dash UI for Atom. 🌒☀
