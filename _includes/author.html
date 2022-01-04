@@ -1,7 +1,7 @@
 <div class="author-box">
     {% if site.avatar_source == "github" and site.github_username %}
         {% capture avatar_image %}
-            https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.ashreinu.us%2Fwp-content%2Fuploads%2F2017%2F11%2FTop-5-hacking-tools.jpg&f=1&nofb=1 
+           <img src="{{ https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.ashreinu.us%2Fwp-content%2Fuploads%2F2017%2F11%2FTop-5-hacking-tools.jpg&f=1&nofb=1 }}"
         {% endcapture %}
     {% elsif site.plugins contains "liquid-md5" %}
         {% capture avatar_image %}
