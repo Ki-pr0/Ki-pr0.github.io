@@ -1,4 +1,4 @@
-## Super Hacking Blog Notes & WritUps
+## Super Hacking Blog Notes & WriteUps
 
 [![design](descarga.gif)](https://ki-pr0.github.io/)
 
