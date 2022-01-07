@@ -5,7 +5,7 @@ description: En esta ocasion empezaremos con el Writeup de la maquina de HackThe
 tags: HTB, Log4j, Tomcat, LDAP Injection, Ysoserial, RCE, JNDI, Web Hacking, Maquinas Retiradas, Writeup
 ---
 
-# LogForge - The Box
+# LogForge Log4j - Hack The Box
 
 Realizamos el Primer escaneo con Nmap
 ```bash
