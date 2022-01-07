@@ -275,4 +275,4 @@ xAziiX8mpKJQnqyusg/P/J8r/O2DAObRxaQd7k4oiqQ0lEWjqBVtYA==
 -----END RSA PRIVATE KEY-----
 ``` 
 
-Maquina y Vulnerabilidad Log4j para Tomcat 9 y FtpServer by HTB H4cked K0H4ck
+Maquina LogForge ~ Vulnerabilidad Log4j ~ Tomcat - FtpServer ~ by HTB || H4cked K0H4ck
