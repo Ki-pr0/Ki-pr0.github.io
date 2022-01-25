@@ -2,7 +2,7 @@
 layout: post
 title:  "Maquina Retirada Cascade AD de Hack The Box (Necesario VIP)"
 description: En esta ocasion empezaremos con el Writeup de la maquina de HackTheBox llamada CASCADE AD
-tags: HTB, LDAP, RPCCLIENT, ASREPRoast Attack, Maquinas Retiradas,
+tags: HTB, LDAP, RPCCLIENT, ASREPRoast Attack, Crackmapexec, VNC Encrypt-Decrypt, Shares Groups, Get-ADObject, AD Recycle Bin Group, Powershell, Evil-WinRm, Maquinas Retiradas
 ---
 
 # Cascade - AD Path ~ Hack The Box
