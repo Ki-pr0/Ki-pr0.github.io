@@ -38,3 +38,10 @@ Servidor Web Para compartir archivos
 2.- Servidor por SMB -- impacket-smbserver smbFolder $(pwd) -smb2support
 3.- msfconsole --> TFTP
 4.-
+
+
+# LocalAccountTokenFilterPolicy - Pwned
+cmd /c reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f
+
+# Enumeracion de Pogramas
+tasklist /V | findstr <programa>
