@@ -1,3 +1,11 @@
+
+# Scanear Host desde Windows
+
+```
+for /L %i in (1,1,255) do @ping -n 1 -w 200 192.168.1.%i > nul && echo 192.168.1.%i is up.
+```
+- Mil Gracias a DeepHacking del tito sikumy
+
 # Formas tipicas de escalar privilegios para Windows
 
 - WinPEAS
