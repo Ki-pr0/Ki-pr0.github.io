@@ -1,4 +1,4 @@
-# Windows Script Block for exec Commands like another User with his password
+# Windows Script Block for exec Commands like other User with his password
 
 Paso 1
 ```
