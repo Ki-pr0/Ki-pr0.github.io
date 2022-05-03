@@ -504,4 +504,4 @@ Info: Establishing connection to remote endpoint
 12909612d25c8xxxxxxxxxxxx
 ```
 
-Maquina Ruteada y concepto sobre el Grupo Azure Admins aprendido. K0H4ck =)
+Maquina Rooteada y concepto sobre el Grupo Azure Admins aprendido. K0H4ck =)
