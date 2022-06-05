@@ -35,3 +35,8 @@ whoami
 whoami
 arkham\batman
 ```
+
+Cambiando la password a otro usuario mediante el uso de ScriptBlock - Search.htb Box
+```
+Invoke-Command -ComputerName localhost -Credential $cred -ScriptBlock { net user tristan.davies Password123$ }
+```
