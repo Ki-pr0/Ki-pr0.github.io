@@ -43,6 +43,11 @@ Runas --> en Caso de Tener credenciales guardadas de otro usuario podriamos ejec
 runas /savecred /user:<usuario> <ejecutable> 
 ```
 
+# Script para enumerar Otras interfaces
+```cmd
+for /L %i in (1,1,255) do @ping -n 1 -w 200 192.168.1.%i > nul && echo 192.168.1.%i is up.
+```
+
 # Archivos de Configuracion
 Buscando por archivos que contengan la palabra pass o extension .config
 ```cmd
