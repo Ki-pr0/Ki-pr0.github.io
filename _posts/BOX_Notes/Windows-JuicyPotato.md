@@ -57,3 +57,5 @@ Tambien esta el rottenpotato.exe que veremos mas adelante.
 SeImpersonatePrivilege + Microsoft Windows Server 2019 Standard = PrintSpoofer64.exe
 
 
+
+
