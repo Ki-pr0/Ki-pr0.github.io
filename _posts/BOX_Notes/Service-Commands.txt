@@ -1,0 +1,12 @@
+Preguntar por la configuracion de un servicio
+>  sc.exe qc <name-service>
+
+Preguntar por el estado de un servicio
+> sc.exe query <name-service>
+
+Modifica la configuracion de un servicio
+> sc.exe config <name-service> <option> = <value>
+
+Encender o Parar un Servicio
+> net start/stop <name-service>
+

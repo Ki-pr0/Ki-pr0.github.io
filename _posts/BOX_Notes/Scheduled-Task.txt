@@ -1,0 +1,7 @@
+
+Tareas PreProgramadas
+
+> schtask /query /fo /LIST /v
+
+Pwershell:
+> Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
